@@ -1,0 +1,536 @@
+/* ─── CSS 변수 ─── */
+    :root {
+      --amber:      #f5c518;
+      --amber-deep: #d4a017;
+      --amber-dark: #a07810;
+      --gold:       #c8980a;
+      --gold-soft:  #e8c84a;
+      --ivory:      #fffbee;
+      --ivory-dark: #f5edcc;
+      --cream:      #fef9e4;
+      --brown:      #3d2b00;
+      --brown-mid:  #6b4c00;
+      --brown-lt:   #9a7230;
+      --text-main:  #2a1e00;
+      --text-mid:   #5a4010;
+      --text-lt:    #8a6c30;
+      --white:      #ffffff;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Noto Serif KR', serif;
+      background: var(--ivory);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── 배경 ─── */
+    .bg-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 65% 45% at 10% 5%,  rgba(245,197,24,.16)  0%, transparent 55%),
+        radial-gradient(ellipse 50% 65% at 90% 95%, rgba(200,152,10,.12)  0%, transparent 52%),
+        radial-gradient(ellipse 130% 130% at 50% 50%, var(--ivory) 0%, var(--ivory-dark) 100%);
+      pointer-events: none;
+    }
+
+    /* ─── 꽃잎 캔버스 ─── */
+    #petalCanvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      transition: opacity .9s ease;
+    }
+    #petalCanvas.off { opacity: 0; }
+
+    /* ─── 페이지 래퍼 ─── */
+    #app { position: relative; z-index: 2; }
+
+    .page-wrap {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 44px 16px 64px;
+    }
+
+    /* ─── 카드 ─── */
+    .invite-card {
+      width: 100%;
+      max-width: 540px;
+      background: rgba(255,252,238,.95);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(200,152,10,.28);
+      border-radius: 2px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.7) inset,
+        0 2px 0 0 rgba(200,152,10,.4),
+        0 32px 90px rgba(61,43,0,.13),
+        0 8px 24px rgba(61,43,0,.07);
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(30px) scale(.975);
+      transition: opacity 1.1s cubic-bezier(.16,1,.3,1), transform 1.1s cubic-bezier(.16,1,.3,1);
+    }
+    .invite-card.revealed {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* ─── 히어로 ─── */
+    .hero {
+      position: relative;
+      height: 380px;
+      overflow: hidden;
+      background: linear-gradient(160deg, #3d2b00 0%, #1e1600 100%);
+    }
+
+    .hero-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+    }
+
+    /* 사진 없을 때 플레이스홀더 */
+    .hero-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(155deg, #3d2b00 0%, #1a1000 100%);
+    }
+    .placeholder-inner { text-align: center; }
+    .placeholder-inner i {
+      font-size: 52px;
+      color: rgba(245,197,24,.25);
+      margin-bottom: 14px;
+      display: block;
+    }
+    .placeholder-inner p {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 13px;
+      color: rgba(200,152,10,.5);
+      letter-spacing: 1.5px;
+    }
+    .placeholder-inner small {
+      font-size: 11px;
+      color: rgba(255,255,255,.2);
+      margin-top: 4px;
+      display: block;
+      font-weight: 300;
+    }
+
+    /* 히어로 오버레이 */
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(30,16,0,.1)  0%,
+        rgba(30,16,0,.05) 35%,
+        rgba(30,16,0,.55) 70%,
+        rgba(20,10,0,.9)  100%
+      );
+    }
+
+    /* 히어로 텍스트 */
+    .hero-text {
+      position: absolute;
+      bottom: 0;
+      inset-inline: 0;
+      padding: 28px 40px 36px;
+      text-align: center;
+    }
+
+    .hero-eyebrow {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 12px;
+      color: var(--gold-soft);
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      opacity: .88;
+      animation: fadeUp .9s .35s both;
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(48px, 11vw, 68px);
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.05;
+      letter-spacing: 3px;
+      margin-bottom: 8px;
+      animation: fadeUp .9s .55s both;
+    }
+
+    .hero-sub {
+      font-size: 12.5px;
+      color: rgba(255,255,255,.55);
+      letter-spacing: 2.5px;
+      font-weight: 300;
+      margin-bottom: 18px;
+      animation: fadeUp .9s .75s both;
+    }
+
+    .hero-ornament {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      animation: fadeUp .9s .95s both;
+    }
+    .orn-line {
+      width: 50px;
+      height: 1px;
+    }
+    .orn-line.l { background: linear-gradient(to right, transparent, rgba(245,197,24,.55)); }
+    .orn-line.r { background: linear-gradient(to left,  transparent, rgba(245,197,24,.55)); }
+    .hero-ornament i { color: var(--amber); font-size: 11px; opacity: .8; }
+
+    /* ─── 카드 바디 ─── */
+    .card-body { padding: 44px 40px 38px; }
+
+    /* ─── 섹션 공통 ─── */
+    .section { margin-bottom: 36px; }
+
+    .sec-label {
+      display: block;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 11px;
+      letter-spacing: 2.8px;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .sec-label i { font-size: 10px; }
+
+    /* ─── 인사말 ─── */
+    .greeting {
+      text-align: center;
+      padding-bottom: 36px;
+      border-bottom: 1px solid rgba(200,152,10,.18);
+    }
+
+    .greeting-deco {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .deco-line {
+      width: 38px;
+      height: 1px;
+    }
+    .deco-line.l { background: linear-gradient(to right, transparent, rgba(200,152,10,.4)); }
+    .deco-line.r { background: linear-gradient(to left,  transparent, rgba(200,152,10,.4)); }
+    .greeting-deco i { color: var(--amber-deep); font-size: 13px; opacity: .6; }
+
+    .greeting-main {
+      font-size: 18.5px;
+      font-weight: 400;
+      color: var(--brown);
+      line-height: 1.9;
+      margin-bottom: 16px;
+      word-break: keep-all;
+    }
+    .greeting-main em {
+      font-style: normal;
+      color: var(--amber-dark);
+      font-weight: 700;
+    }
+    .greeting-sub {
+      font-size: 13.5px;
+      color: var(--text-lt);
+      line-height: 2;
+      font-weight: 300;
+      word-break: keep-all;
+    }
+
+    /* ─── 양가 ─── */
+    .family-grid {
+      display: grid;
+      grid-template-columns: 1fr 52px 1fr;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, rgba(245,197,24,.09), rgba(200,152,10,.05));
+      border: 1px solid rgba(200,152,10,.2);
+      border-radius: 3px;
+      padding: 24px 18px;
+    }
+
+    .family-side { text-align: center; }
+
+    .f-badge {
+      display: inline-block;
+      font-size: 9.5px;
+      letter-spacing: 1.8px;
+      padding: 3px 11px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+    }
+    .f-badge.groom {
+      background: rgba(61,43,0,.08);
+      color: var(--brown);
+      border: 1px solid rgba(61,43,0,.18);
+    }
+    .f-badge.bride {
+      background: rgba(200,152,10,.1);
+      color: var(--gold);
+      border: 1px solid rgba(200,152,10,.22);
+    }
+
+    .f-name {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--brown);
+      letter-spacing: 5px;
+      margin-bottom: 4px;
+    }
+    .f-role {
+      font-size: 12px;
+      color: var(--text-lt);
+      font-weight: 300;
+      margin-bottom: 10px;
+    }
+    .f-parents {
+      font-size: 11.5px;
+      color: var(--text-mid);
+      line-height: 1.75;
+      font-weight: 300;
+      word-break: keep-all;
+    }
+
+    .f-center {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .and-circle {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--amber) 0%, var(--amber-dark) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 13px;
+      box-shadow: 0 4px 18px rgba(200,152,10,.35);
+    }
+
+    /* ─── 구분선 ─── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+      color: rgba(200,152,10,.35);
+      font-size: 6px;
+    }
+    .divider span { flex: 1; height: 1px; background: rgba(200,152,10,.18); }
+
+    /* ─── 행사 정보 ─── */
+    .info-list { display: flex; flex-direction: column; }
+
+    .info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(200,152,10,.1);
+    }
+    .info-item:last-child { border-bottom: none; }
+
+    .info-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, rgba(245,197,24,.25), rgba(245,197,24,.08));
+      border: 1px solid rgba(200,152,10,.22);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--gold);
+      font-size: 14px;
+    }
+
+    .info-label {
+      font-size: 10.5px;
+      color: var(--text-lt);
+      letter-spacing: 1.5px;
+      margin-bottom: 3px;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+    }
+    .info-val {
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+    .info-sub-val {
+      font-size: 12.5px;
+      color: var(--text-lt);
+      font-weight: 300;
+      margin-top: 2px;
+      line-height: 1.65;
+      word-break: keep-all;
+    }
+
+    /* ─── 공지 ─── */
+    .notice {
+      display: flex;
+      gap: 12px;
+      background: rgba(200,152,10,.05);
+      border-left: 3px solid var(--amber-deep);
+      border-radius: 0 3px 3px 0;
+      padding: 16px 18px;
+      margin-bottom: 28px;
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.9;
+      font-weight: 300;
+      word-break: keep-all;
+    }
+    .notice i { color: var(--amber-deep); font-size: 14px; flex-shrink: 0; margin-top: 3px; }
+    .notice strong { font-weight: 700; color: var(--brown); }
+
+    /* ─── CTA 버튼 ─── */
+    .cta-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+
+    .btn-primary {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--brown) 0%, #5a3800 100%);
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      font-family: 'Noto Serif KR', serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: .5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      transition: all .25s;
+      box-shadow: 0 4px 18px rgba(61,43,0,.22);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(61,43,0,.32);
+    }
+    .btn-primary i { color: var(--amber); }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 14px;
+      background: transparent;
+      color: var(--brown-mid);
+      border: 1.5px solid rgba(200,152,10,.38);
+      border-radius: 3px;
+      font-family: 'Noto Serif KR', serif;
+      font-size: 14px;
+      font-weight: 400;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      transition: all .25s;
+    }
+    .btn-secondary:hover {
+      background: rgba(200,152,10,.07);
+      border-color: var(--gold);
+      transform: translateY(-1px);
+    }
+
+    /* ─── 꽃잎 토글 ─── */
+    .petal-wrap { display: flex; justify-content: center; }
+
+    .petal-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 22px;
+      background: transparent;
+      border: 1px dashed rgba(200,152,10,.38);
+      border-radius: 40px;
+      cursor: pointer;
+      font-family: 'Noto Serif KR', serif;
+      font-size: 13px;
+      color: var(--text-lt);
+      transition: all .25s;
+      user-select: none;
+    }
+    .petal-btn:hover { background: rgba(200,152,10,.08); color: var(--gold); }
+    .petal-btn.on { color: var(--brown-mid); }
+
+    .toggle-track {
+      width: 34px;
+      height: 19px;
+      background: #d4c090;
+      border-radius: 10px;
+      position: relative;
+      transition: background .3s;
+    }
+    .petal-btn.on .toggle-track { background: var(--amber-deep); }
+    .toggle-thumb {
+      position: absolute;
+      width: 13px; height: 13px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px; left: 3px;
+      transition: transform .3s;
+      box-shadow: 0 1px 4px rgba(0,0,0,.2);
+    }
+    .petal-btn.on .toggle-thumb { transform: translateX(15px); }
+
+    /* ─── 푸터 ─── */
+    .card-footer {
+      background: linear-gradient(160deg, var(--brown) 0%, #1e1200 100%);
+      padding: 26px 40px;
+      text-align: center;
+    }
+    .footer-heart { color: var(--amber); font-size: 14px; display: block; margin-bottom: 10px; opacity: .85; }
+    .footer-txt { font-family: 'Noto Serif KR', serif; font-size: 13px; color: rgba(255,255,255,.5); margin-bottom: 4px; font-weight: 300; letter-spacing: 1px; }
+    .footer-copy { font-family: 'Playfair Display', serif; font-style: italic; font-size: 12px; color: rgba(245,197,24,.45); letter-spacing: 1.5px; }
+
+    /* ─── 애니메이션 ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── 반응형 ─── */
+    @media (max-width: 480px) {
+      .hero { height: 310px; }
+      .hero-text { padding: 20px 24px 28px; }
+      .card-body { padding: 30px 22px 28px; }
+      .family-grid { grid-template-columns: 1fr 42px 1fr; padding: 18px 10px; }
+      .f-name { font-size: 18px; letter-spacing: 3px; }
+      .card-footer { padding: 20px 24px; }
+    }
