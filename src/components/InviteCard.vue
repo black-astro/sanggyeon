@@ -166,9 +166,21 @@ import {
 // ✅ 수정 필요한 곳
 // ══════════════════════════════════════════
 const NAVER_CLIENT_ID = 'r3v0svm07f'
+const REST = {
+  lat: 37.6118, // fallback
+  lng: 126.7152, // fallback
+  name: '모담 김포 본점',
+  placeId: '1120584413',
+  address: '경기도 김포시 모담공원로167번길 105',
+}
 
-const REST = { lat: 37.6118, lng: 126.7152, name: '모담 김포 본점',          placeId: '1120584413' }
-const PARK = { lat: 37.6128, lng: 126.7160, name: '김포 아트빌리지 공영주차장', placeId: '1424823651' }
+const PARK = {
+  lat: 37.6128, // fallback
+  lng: 126.7160, // fallback
+  name: '김포 아트빌리지 공영주차장',
+  placeId: '1424823651',
+  address: '경기도 김포시 모담공원로 170',
+}
 // ══════════════════════════════════════════
 
 const cardRef   = ref(null)
