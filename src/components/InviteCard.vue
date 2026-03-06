@@ -201,14 +201,14 @@ import {
 // ══════════════════════════════════════════
 // ✅ 여기만 수정
 // ══════════════════════════════════════════
-const NAVER_CLIENT_ID = 'YOUR_CLIENT_ID_HERE'
+const NAVER_CLIENT_ID = 'r3v0svm07f'
 
 // geocoder가 주소 → 좌표 자동 변환
 const REST_ADDR = '경기도 김포시 모담공원로167번길 105'
 const PARK_ADDR = '경기도 김포시 모담공원로 170'
 
 const REST_NAME     = '모담 김포 본점'
-const PARK_NAME     = '김포 아트빌리지 공영주차장'
+const PARK_NAME     = '김포 아트빌리지 주차장'
 const REST_PLACE_ID = '1120584413'
 const PARK_PLACE_ID = '1424823651'
 // ══════════════════════════════════════════
