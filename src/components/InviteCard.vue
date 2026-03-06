@@ -177,8 +177,8 @@ const NAVER_CLIENT_ID = 'r3v0svm07f'
 
 // geocoder가 주소로 좌표를 자동 조회함
 // 주소가 정확할수록 정확하게 찍힘
-const REST_ADDR = '경기도 김포시 모담공원로167번길 105 1층 모담'
-const PARK_ADDR = '경기 김포시 모담공원로 170'   // 김포 아트빌리지 공영주차장 도로명주소
+const REST_ADDR = '경기도 김포시 모담공원로167번길 105'
+const PARK_ADDR = '경기도 김포시 모담공원로 170'
 
 const REST_NAME = '모담 김포 본점'
 const PARK_NAME = '김포 아트빌리지 주차장'
@@ -228,16 +228,51 @@ const openNaver = (target) => {
 let naverMap = null
 let markers  = {}
 
+// const loadNaverSDK = () =>
+//   new Promise((resolve) => {
+//     if (window.naver?.maps) { resolve(); return }
+//     const script = document.createElement('script')
+//     // submodules=geocoder 반드시 포함
+//     script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${NAVER_CLIENT_ID}&submodules=geocoder`
+//     script.onload = resolve
+//     document.head.appendChild(script)
+//   })
 const loadNaverSDK = () =>
-  new Promise((resolve) => {
-    if (window.naver?.maps) { resolve(); return }
+  new Promise((resolve, reject) => {
+    if (window.naver?.maps?.Service?.geocode) {
+      resolve()
+      return
+    }
+
+    const done = () => {
+      if (window.naver?.maps?.Service?.geocode) resolve()
+      else reject(new Error('geocoder 로드 실패'))
+    }
+
+    const existing = document.querySelector('script[data-naver-maps-sdk="true"]')
+    if (existing) {
+      window.naver?.maps?.onJSContentLoaded = done
+      return
+    }
+
     const script = document.createElement('script')
-    // submodules=geocoder 반드시 포함
-    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${NAVER_CLIENT_ID}&submodules=geocoder`
-    script.onload = resolve
+    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${NAVER_CLIENT_ID}&submodules=geocoder`
+    script.dataset.naverMapsSdk = 'true'
+    script.onerror = reject
     document.head.appendChild(script)
+
+    script.onload = () => {
+      if (window.naver?.maps?.Service?.geocode) {
+        resolve()
+      } else if (window.naver?.maps) {
+        window.naver.maps.onJSContentLoaded = done
+      } else {
+        reject(new Error('naver maps 로드 실패'))
+      }
+    }
   })
 
+  
 const makeMarker = (latLng, label) => new window.naver.maps.Marker({
   position: latLng,
   map: naverMap,
@@ -250,28 +285,54 @@ const makeMarker = (latLng, label) => new window.naver.maps.Marker({
         <div style="position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);
           border-left:6px solid transparent;border-right:6px solid transparent;
           border-top:6px solid #d4a017;"></div>
-      </div>`,
-    anchor: new window.naver.maps.Point(40, 34),
+      </div>`
   },
 })
 
 // 주소 → 좌표 변환 (네이버 geocoder 서브모듈)
-const geocodeAddress = (address) =>
-  new Promise((resolve) => {
-    window.naver.maps.Service.geocode({ query: address }, (status, res) => {
-      if (status === window.naver.maps.Service.Status.OK && res?.v2?.addresses?.length > 0) {
-        const { x, y } = res.v2.addresses[0]  // x=경도, y=위도
-        resolve({ lat: parseFloat(y), lng: parseFloat(x) })
-      } else {
-        resolve(null)
-      }
-    })
-  })
+// const geocodeAddress = (address) =>
+//   new Promise((resolve) => {
+//     window.naver.maps.Service.geocode({ query: address }, (status, res) => {
+//       if (status === window.naver.maps.Service.Status.OK && res?.v2?.addresses?.length > 0) {
+//         const { x, y } = res.v2.addresses[0]  // x=경도, y=위도
+//         resolve({ lat: parseFloat(y), lng: parseFloat(x) })
+//       } else {
+//         resolve(null)
+//       }
+//     })
+//   })
 
+const geocodeAddress = (address) =>
+  new Promise((resolve, reject) => {
+    if (!window.naver?.maps?.Service?.geocode) {
+      reject(new Error('geocoder 미로드'))
+      return
+    }
+
+    window.naver.maps.Service.geocode(
+      { query: address },
+      (status, res) => {
+        if (status !== window.naver.maps.Service.Status.OK) {
+          reject(new Error(`geocode 실패: ${status}`))
+          return
+        }
+
+        const item = res?.v2?.addresses?.[0]
+        if (!item) {
+          reject(new Error('검색 결과 없음'))
+          return
+        }
+
+        resolve({
+          lat: Number(item.y), // 위도
+          lng: Number(item.x), // 경도
+        })
+      }
+    )
+  })
 const initMap = async () => {
   const naver = window.naver
 
-  // 지도 초기 생성 (서울 중심으로 임시 — geocode 완료 후 이동)
   naverMap = new naver.maps.Map(mapEl.value, {
     center: new naver.maps.LatLng(37.611, 126.715),
     zoom: 17,
@@ -280,27 +341,28 @@ const initMap = async () => {
     scaleControl: false,
   })
 
-  // 식당 좌표 조회
-  const restCoord = await geocodeAddress(REST_ADDR)
-  if (restCoord) {
+  try {
+    const restCoord = await geocodeAddress(REST_ADDR)
     coords.restaurant = restCoord
     kakaoRestUrl.value = `https://map.kakao.com/link/to/${encodeURIComponent(REST_NAME)},${restCoord.lat},${restCoord.lng}`
     const latLng = new naver.maps.LatLng(restCoord.lat, restCoord.lng)
     naverMap.setCenter(latLng)
     markers.restaurant = makeMarker(latLng, REST_NAME)
+  } catch (e) {
+    console.error('식당 geocode 실패', e)
   }
 
-  // 주차장 좌표 조회
-  const parkCoord = await geocodeAddress(PARK_ADDR)
-  if (parkCoord) {
+  try {
+    const parkCoord = await geocodeAddress(PARK_ADDR)
     coords.parking = parkCoord
     kakaoParkUrl.value = `https://map.kakao.com/link/to/${encodeURIComponent(PARK_NAME)},${parkCoord.lat},${parkCoord.lng}`
     const latLng = new naver.maps.LatLng(parkCoord.lat, parkCoord.lng)
     markers.parking = makeMarker(latLng, PARK_NAME)
     markers.parking.setVisible(false)
+  } catch (e) {
+    console.error('주차장 geocode 실패', e)
   }
 }
-
 const switchMap = (target) => {
   activeMap.value = target
   if (!naverMap) return
