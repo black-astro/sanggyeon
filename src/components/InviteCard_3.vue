@@ -91,7 +91,7 @@
         <div class="notice">
           <Info :size="15" class="notice-icon" />
           <div>
-            <p>부족한 자리이지만 함께해 주신다면 더없는 기쁨이 되겠습니다.</p>
+            <p>참석 여부를 <strong>3월 10일(월)</strong>까지 알려주시면 감사하겠습니다.</p>
             <p>편안한 마음으로 왕림해 주시길 바랍니다.</p>
           </div>
         </div>
@@ -105,12 +105,16 @@
             <div class="place-card-inner" :class="{ visible: activeMap === 'restaurant' }">
               <div class="place-title"><UtensilsCrossed :size="13" />모담 김포 본점</div>
               <div class="place-desc">전통 한정식 전문점 · 프라이빗 룸 운영<br/>경기도 김포시 모담공원로167번길 105</div>
-
+              <div class="place-dist" v-if="distanceText.restaurant">
+                <Navigation :size="11" />현재 위치에서 약 {{ distanceText.restaurant }}
+              </div>
             </div>
             <div class="place-card-inner" :class="{ visible: activeMap === 'parking' }">
               <div class="place-title"><SquareParking :size="13" />김포 아트빌리지 공영주차장</div>
-              <div class="place-desc">식당에서 도보 약 2분<br/>경기도 김포시 모담공원로 170</div>
-
+              <div class="place-desc">무료 공영주차장 · 식당에서 도보 약 2분<br/>경기도 김포시 모담공원로 170</div>
+              <div class="place-dist" v-if="distanceText.parking">
+                <Navigation :size="11" />현재 위치에서 약 {{ distanceText.parking }}
+              </div>
             </div>
           </div>
 
@@ -204,7 +208,7 @@ const REST_ADDR = '경기도 김포시 모담공원로167번길 105'
 const PARK_ADDR = '경기도 김포시 모담공원로 170'
 
 const REST_NAME     = '모담 김포 본점'
-const PARK_NAME     = '김포 아트빌리지 공영주차장'
+const PARK_NAME     = '김포 아트빌리지 주차장'
 const REST_PLACE_ID = '1120584413'
 const PARK_PLACE_ID = '1424823651'
 // ══════════════════════════════════════════
@@ -223,11 +227,34 @@ const coords = {
 
 const kakaoRestUrl  = ref('#')
 const kakaoParkUrl  = ref('#')
+const distanceText  = ref({ restaurant: '', parking: '' })
+
+// Haversine 거리 계산 (km)
+const calcDist = (lat1, lng1, lat2, lng2) => {
+  const R = 6371
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLng = (lng2 - lng1) * Math.PI / 180
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)**2
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+}
+
+const formatDist = (km) => km < 1 ? `${Math.round(km * 1000)}m` : `${km.toFixed(1)}km`
+
+const updateDistances = (myLat, myLng) => {
+  if (coords.restaurant.lat) {
+    const d = calcDist(myLat, myLng, coords.restaurant.lat, coords.restaurant.lng)
+    distanceText.value.restaurant = formatDist(d)
+  }
+  if (coords.parking.lat) {
+    const d = calcDist(myLat, myLng, coords.parking.lat, coords.parking.lng)
+    distanceText.value.parking = formatDist(d)
+  }
+}
 
 const infoItems = [
-  { icon: CalendarDays,  label: '일 시', value: '2026년 3월 8일 (일요일)',    sub: '오후 1시 15분  ·  도착은 13:00 권장' },
+  { icon: CalendarDays,  label: '일 시', value: '2025년 3월 15일 (토요일)',    sub: '오후 12시 30분  ·  도착은 12:00 권장' },
   { icon: MapPin,        label: '장 소', value: '모담 김포 본점 (한정식)',      sub: REST_ADDR },
-  { icon: SquareParking, label: '주 차', value: PARK_NAME,                     sub: '식당에서 도보 약 2분' },
+  { icon: SquareParking, label: '주 차', value: PARK_NAME,                     sub: '식당에서 도보 약 2분 · 무료 주차 가능' },
   { icon: Phone,         label: '문 의', value: '신랑 측 010-0000-0000',       sub: '신부 측 010-0000-0000' },
 ]
 
@@ -269,43 +296,32 @@ const loadNaverSDK = () =>
     }
   })
 
-const makeMarker = (latLng, label, placeUrl) => {
-  const marker = new window.naver.maps.Marker({
-    position: latLng,
-    map: naverMap,
-    icon: {
-      content: `
+const makeMarker = (latLng, label) => new window.naver.maps.Marker({
+  position: latLng,
+  map: naverMap,
+  icon: {
+    content: `
+      <div style="
+        background:#d4a017;color:#fff;
+        font-family:'Noto Serif KR',serif;
+        font-size:11px;font-weight:600;
+        padding:5px 10px;border-radius:3px;
+        white-space:nowrap;
+        box-shadow:0 2px 8px rgba(61,43,0,.4);
+        position:relative;
+      ">
+        ${label}
         <div style="
+          position:absolute;bottom:-6px;left:50%;
           transform:translateX(-50%);
-          background:#d4a017;color:#fff;
-          font-family:'Noto Serif KR',serif;
-          font-size:11px;font-weight:600;
-          padding:5px 10px;border-radius:3px;
-          white-space:nowrap;
-          box-shadow:0 2px 8px rgba(61,43,0,.4);
-          position:relative;
-          cursor:pointer;
-        ">
-          ${label}
-          <div style="
-            position:absolute;bottom:-6px;left:50%;
-            transform:translateX(-50%);
-            border-left:6px solid transparent;
-            border-right:6px solid transparent;
-            border-top:6px solid #d4a017;
-          "></div>
-        </div>`,
-      anchor: new window.naver.maps.Point(0, 34),
-    },
-  })
-  // 더블클릭 시 장소 페이지 오픈
-  if (placeUrl) {
-    window.naver.maps.Event.addListener(marker, 'dblclick', () => {
-      window.open(placeUrl, '_blank')
-    })
-  }
-  return marker
-}
+          border-left:6px solid transparent;
+          border-right:6px solid transparent;
+          border-top:6px solid #d4a017;
+        "></div>
+      </div>`,
+    anchor: new window.naver.maps.Point(40, 34),
+  },
+})
 
 // 주소 → 좌표 변환
 const geocodeAddress = (address) =>
@@ -340,7 +356,7 @@ const initMap = async () => {
     kakaoRestUrl.value = `https://map.kakao.com/link/to/${encodeURIComponent(REST_NAME)},${c.lat},${c.lng}`
     const latLng = new naver.maps.LatLng(c.lat, c.lng)
     naverMap.setCenter(latLng)
-    markers.restaurant = makeMarker(latLng, REST_NAME, `https://map.naver.com/p/entry/place/${REST_PLACE_ID}`)
+    markers.restaurant = makeMarker(latLng, REST_NAME)
   } catch (e) {
     console.error('식당 geocode 실패', e)
   }
@@ -351,7 +367,7 @@ const initMap = async () => {
     coords.parking = c
     kakaoParkUrl.value = `https://map.kakao.com/link/to/${encodeURIComponent(PARK_NAME)},${c.lat},${c.lng}`
     const latLng = new naver.maps.LatLng(c.lat, c.lng)
-    markers.parking = makeMarker(latLng, PARK_NAME, `https://map.naver.com/p/entry/place/${PARK_PLACE_ID}`)
+    markers.parking = makeMarker(latLng, PARK_NAME)
     markers.parking.setVisible(false)
   }
 }
@@ -371,6 +387,7 @@ const locateMe = () => {
     const pos = new window.naver.maps.LatLng(c.latitude, c.longitude)
     naverMap.setCenter(pos)
     naverMap.setZoom(17)
+    updateDistances(c.latitude, c.longitude)
     if (myMarker) { myMarker.setPosition(pos) } else {
     myMarker = new window.naver.maps.Marker({
       position: pos,
@@ -549,6 +566,7 @@ onUnmounted(() => {
 }
 .place-title { display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--brown);margin-bottom:5px; }
 .place-desc  { font-size:11.5px;color:var(--text-lt);line-height:1.75;font-weight:300; }
+.place-dist  { display:flex;align-items:center;gap:5px;margin-top:7px;font-size:11px;color:var(--amber-deep);font-weight:500; }
 
 .nav-group { margin-bottom:12px; &:last-child{margin-bottom:0} }
 .nav-group-label { display:flex;align-items:center;gap:6px;font-family:'Playfair Display',serif;font-style:italic;font-size:10.5px;letter-spacing:1.5px;color:var(--text-lt);margin-bottom:7px; }
