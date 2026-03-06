@@ -118,8 +118,11 @@
             <div class="nav-group-label"><UtensilsCrossed :size="12" />식당 길찾기</div>
             <div class="btn-map-row">
               <button class="btn-map btn-naver" @click="openNaver('restaurant')">
-                <Navigation :size="14" />네이버 지도
+                <Navigation :size="14" />네이버 길찾기
               </button>
+              <a class="btn-map btn-kakao" :href="kakaoRestUrl" target="_blank" rel="noopener">
+                <Map :size="14" />카카오 길찾기
+              </a>
             </div>
           </div>
 
@@ -128,8 +131,11 @@
             <div class="nav-group-label"><SquareParking :size="12" />주차장 길찾기</div>
             <div class="btn-map-row">
               <button class="btn-map btn-naver" @click="openNaver('parking')">
-                <Navigation :size="14" />네이버 지도
+                <Navigation :size="14" />네이버 길찾기
               </button>
+              <a class="btn-map btn-kakao" :href="kakaoParkUrl" target="_blank" rel="noopener">
+                <Map :size="14" />카카오 길찾기
+              </a>
             </div>
           </div>
         </section>
@@ -159,28 +165,22 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import {
   Heart, Leaf, Users, Infinity, Dot,
   CalendarHeart, CalendarDays, MapPin, SquareParking, Phone,
-  Info, MapPinned, UtensilsCrossed, Navigation, Sparkles,
+  Info, MapPinned, UtensilsCrossed, Navigation, Map, Sparkles,
 } from 'lucide-vue-next'
 
 // ══════════════════════════════════════════
-// ✅ 수정 필요한 곳
+// ✅ 여기만 수정
 // ══════════════════════════════════════════
-const NAVER_CLIENT_ID = 'r3v0svm07f'
-const REST = {
-  lat: 37.6118, // fallback
-  lng: 126.7152, // fallback
-  name: '모담 김포 본점',
-  placeId: '1120584413',
-  address: '경기도 김포시 모담공원로167번길 105',
-}
+const NAVER_CLIENT_ID = 'YOUR_CLIENT_ID_HERE'
 
-const PARK = {
-  lat: 37.6128, // fallback
-  lng: 126.7160, // fallback
-  name: '김포 아트빌리지 공영주차장',
-  placeId: '1424823651',
-  address: '경기도 김포시 모담공원로 170',
-}
+// geocoder가 주소 → 좌표 자동 변환
+const REST_ADDR = '경기도 김포시 모담공원로167번길 105'
+const PARK_ADDR = '경기도 김포시 모담공원로 170'
+
+const REST_NAME     = '모담 김포 본점'
+const PARK_NAME     = '김포 아트빌리지 공영주차장'
+const REST_PLACE_ID = '1120584413'
+const PARK_PLACE_ID = '1424823651'
 // ══════════════════════════════════════════
 
 const cardRef   = ref(null)
@@ -189,44 +189,58 @@ const mapEl     = ref(null)
 const petals    = ref(true)
 const activeMap = ref('restaurant')
 
+// geocoder가 런타임에 채워주는 좌표
+const coords = {
+  restaurant: { lat: 0, lng: 0 },
+  parking:    { lat: 0, lng: 0 },
+}
+
+const kakaoRestUrl = ref('#')
+const kakaoParkUrl = ref('#')
+
 const infoItems = [
   { icon: CalendarDays,  label: '일 시', value: '2025년 3월 15일 (토요일)',    sub: '오후 12시 30분  ·  도착은 12:00 권장' },
-  { icon: MapPin,        label: '장 소', value: '모담 김포 본점 (한정식)',      sub: '경기도 김포시 고촌읍 아라육로 지하 105' },
-  { icon: SquareParking, label: '주 차', value: '김포 아트빌리지 공영주차장',   sub: '식당에서 도보 약 2분 · 무료 주차 가능' },
+  { icon: MapPin,        label: '장 소', value: '모담 김포 본점 (한정식)',      sub: REST_ADDR },
+  { icon: SquareParking, label: '주 차', value: PARK_NAME,                     sub: '식당에서 도보 약 2분 · 무료 주차 가능' },
   { icon: Phone,         label: '문 의', value: '신랑 측 010-0000-0000',       sub: '신부 측 010-0000-0000' },
 ]
 
-// 네이버 길찾기: 앱 스킴 시도 → 실패 시 웹 Place 페이지로 fallback
+// 네이버 길찾기: 앱 스킴 → 웹 fallback
 const openNaver = (target) => {
-  const t = target === 'restaurant' ? REST : PARK
-  const appScheme = `nmap://route/public?dlat=${t.lat}&dlng=${t.lng}&dname=${encodeURIComponent(t.name)}&appname=kr.sanggyeonrye`
-  const webUrl    = `https://map.naver.com/p/entry/place/${t.placeId}`
-
-  // 앱 스킴 시도
-  window.location.href = appScheme
-  // 앱 없으면 500ms 후 웹으로
-  setTimeout(() => window.open(webUrl, '_blank'), 500)
+  const c    = coords[target]
+  const name = target === 'restaurant' ? REST_NAME : PARK_NAME
+  const pid  = target === 'restaurant' ? REST_PLACE_ID : PARK_PLACE_ID
+  if (c.lat && c.lng) {
+    window.location.href = `nmap://route/public?dlat=${c.lat}&dlng=${c.lng}&dname=${encodeURIComponent(name)}&appname=kr.sanggyeonrye`
+  }
+  setTimeout(() => window.open(`https://map.naver.com/p/entry/place/${pid}`, '_blank'), 500)
 }
 
-// ── 네이버 지도 SDK ──
+// ── 네이버 지도 SDK (geocoder 서브모듈 포함) ──
 let naverMap = null
 let markers  = {}
 
 const loadNaverSDK = () =>
-  new Promise((resolve) => {
+  new Promise((resolve, reject) => {
     if (window.naver?.maps?.Service?.geocode) { resolve(); return }
     const script = document.createElement('script')
     script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${NAVER_CLIENT_ID}&submodules=geocoder`
+    script.onerror = () => reject(new Error('SDK 로드 실패'))
+    document.head.appendChild(script)
     script.onload = () => {
-      // onload 직후 geocoder 서브모듈이 아직 미준비 상태일 수 있어서 폴링으로 대기
+      // geocoder 서브모듈 준비까지 폴링 대기 (최대 5초)
+      let elapsed = 0
       const wait = setInterval(() => {
+        elapsed += 50
         if (window.naver?.maps?.Service?.geocode) {
           clearInterval(wait)
           resolve()
+        } else if (elapsed > 5000) {
+          clearInterval(wait)
+          reject(new Error('geocoder 준비 타임아웃'))
         }
       }, 50)
     }
-    document.head.appendChild(script)
   })
 
 const makeMarker = (latLng, label) => new window.naver.maps.Marker({
@@ -256,28 +270,64 @@ const makeMarker = (latLng, label) => new window.naver.maps.Marker({
   },
 })
 
-const initMap = () => {
-  const naver  = window.naver
-  const center = new naver.maps.LatLng(REST.lat, REST.lng)
+// 주소 → 좌표 변환
+const geocodeAddress = (address) =>
+  new Promise((resolve, reject) => {
+    window.naver.maps.Service.geocode({ query: address }, (status, res) => {
+      if (status !== window.naver.maps.Service.Status.OK) {
+        reject(new Error(`geocode 실패: ${status}`))
+        return
+      }
+      const item = res?.v2?.addresses?.[0]
+      if (!item) { reject(new Error('주소 결과 없음')); return }
+      resolve({ lat: Number(item.y), lng: Number(item.x) })
+    })
+  })
 
+const initMap = async () => {
+  const naver = window.naver
+
+  // 지도 초기 생성 (geocode 완료 전 임시 중심)
   naverMap = new naver.maps.Map(mapEl.value, {
-    center,
+    center: new naver.maps.LatLng(37.611, 126.715),
     zoom: 17,
     zoomControl: false,
     mapDataControl: false,
     scaleControl: false,
   })
 
-  markers.restaurant = makeMarker(new naver.maps.LatLng(REST.lat, REST.lng), REST.name)
-  markers.parking    = makeMarker(new naver.maps.LatLng(PARK.lat, PARK.lng), PARK.name)
-  markers.parking.setVisible(false)
+  // 식당 geocode
+  try {
+    const c = await geocodeAddress(REST_ADDR)
+    coords.restaurant = c
+    kakaoRestUrl.value = `https://map.kakao.com/link/to/${encodeURIComponent(REST_NAME)},${c.lat},${c.lng}`
+    const latLng = new naver.maps.LatLng(c.lat, c.lng)
+    naverMap.setCenter(latLng)
+    markers.restaurant = makeMarker(latLng, REST_NAME)
+  } catch (e) {
+    console.error('식당 geocode 실패', e)
+  }
+
+  // 주차장 geocode
+  try {
+    const c = await geocodeAddress(PARK_ADDR)
+    coords.parking = c
+    kakaoParkUrl.value = `https://map.kakao.com/link/to/${encodeURIComponent(PARK_NAME)},${c.lat},${c.lng}`
+    const latLng = new naver.maps.LatLng(c.lat, c.lng)
+    markers.parking = makeMarker(latLng, PARK_NAME)
+    markers.parking.setVisible(false)
+  } catch (e) {
+    console.error('주차장 geocode 실패', e)
+  }
 }
 
 const switchMap = (target) => {
   activeMap.value = target
   if (!naverMap) return
-  const t = target === 'restaurant' ? REST : PARK
-  naverMap.setCenter(new window.naver.maps.LatLng(t.lat, t.lng))
+  const c = coords[target]
+  if (c.lat && c.lng) {
+    naverMap.setCenter(new window.naver.maps.LatLng(c.lat, c.lng))
+  }
   markers.restaurant?.setVisible(target === 'restaurant')
   markers.parking?.setVisible(target === 'parking')
 }
@@ -304,7 +354,7 @@ onMounted(async () => {
   startPetals()
   setTimeout(() => cardRef.value?.classList.add('revealed'), 80)
   await loadNaverSDK()
-  initMap()
+  await initMap()
 })
 
 onUnmounted(() => {
@@ -391,23 +441,31 @@ onUnmounted(() => {
 .nav-group { margin-bottom:12px; &:last-child{margin-bottom:0} }
 .nav-group-label { display:flex;align-items:center;gap:6px;font-family:'Playfair Display',serif;font-style:italic;font-size:10.5px;letter-spacing:1.5px;color:var(--text-lt);margin-bottom:7px; }
 
-.btn-map-row { display:grid;grid-template-columns:1fr;gap:8px; }
+.btn-map-row { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
 
 .btn-map {
-  padding:12px 16px;background:transparent;color:var(--brown-mid);
-  border:1.5px solid rgba(200,152,10,.32);border-radius:3px;
-  font-family:'Noto Serif KR',serif;font-size:13px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  transition:all .22s;text-decoration:none;width:100%;
+  padding:12px 8px;
+  border-radius:3px;
+  font-family:'Noto Serif KR',serif;font-size:12.5px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:all .22s;text-decoration:none;border:1.5px solid;
 
-  &:hover { background:rgba(200,152,10,.07);border-color:var(--gold); }
-
+  // 네이버 — 골드 채움
   &.btn-naver {
-    background:rgba(3,199,90,.06);
-    border-color:rgba(3,199,90,.3);
-    color:#028a3e;
+    background:linear-gradient(135deg, var(--amber-deep) 0%, var(--amber-dark) 100%);
+    border-color:var(--amber-dark);
+    color:#fff;
+    font-weight:600;
+    box-shadow:0 2px 8px rgba(200,152,10,.3);
+    &:hover { background:linear-gradient(135deg,#c8980a 0%,#8a6010 100%);box-shadow:0 4px 14px rgba(200,152,10,.45); }
+  }
 
-    &:hover { background:rgba(3,199,90,.12);border-color:rgba(3,199,90,.5); }
+  // 카카오 — 골드 아웃라인
+  &.btn-kakao {
+    background:rgba(245,197,24,.08);
+    border-color:rgba(200,152,10,.35);
+    color:var(--brown-mid);
+    &:hover { background:rgba(245,197,24,.16);border-color:var(--amber-deep);color:var(--brown); }
   }
 }
 
