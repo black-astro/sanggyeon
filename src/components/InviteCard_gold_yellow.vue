@@ -91,7 +91,7 @@
         <div class="notice">
           <Info :size="15" class="notice-icon" />
           <div>
-            <p>참석 여부를 <strong>3월 10일(월)</strong>까지 알려주시면 감사하겠습니다.</p>
+            <p>부족한 자리이지만 함께해 주신다면 더없는 기쁨이 되겠습니다.</p>
             <p>편안한 마음으로 왕림해 주시길 바랍니다.</p>
           </div>
         </div>
@@ -99,6 +99,20 @@
         <!-- 오시는 길 -->
         <section class="section">
           <span class="sec-label"><MapPinned :size="13" />오시는 길</span>
+
+          <!-- 장소 설명 카드 -->
+          <div class="place-card">
+            <div class="place-card-inner" :class="{ visible: activeMap === 'restaurant' }">
+              <div class="place-title"><UtensilsCrossed :size="13" />모담 김포 본점</div>
+              <div class="place-desc">전통 한정식 전문점 · 프라이빗 룸 운영<br/>경기도 김포시 모담공원로167번길 105</div>
+
+            </div>
+            <div class="place-card-inner" :class="{ visible: activeMap === 'parking' }">
+              <div class="place-title"><SquareParking :size="13" />김포 아트빌리지 공영주차장</div>
+              <div class="place-desc">식당에서 도보 약 2분<br/>경기도 김포시 모담공원로 170</div>
+
+            </div>
+          </div>
 
           <div class="map-tabs">
             <button class="map-tab" :class="{ active: activeMap === 'restaurant' }" @click="switchMap('restaurant')">
@@ -111,6 +125,17 @@
 
           <div class="map-frame-wrap">
             <div ref="mapEl" class="naver-map" />
+            <!-- 줌 컨트롤 -->
+            <div class="map-ctrl-zoom">
+              <button class="map-ctrl-btn" @click="mapZoom(1)" title="확대"><ZoomIn :size="15" /></button>
+              <div class="map-ctrl-divider" />
+              <button class="map-ctrl-btn" @click="mapZoom(-1)" title="축소"><ZoomOut :size="15" /></button>
+            </div>
+            <!-- 내 위치 + 크게 보기 -->
+            <div class="map-ctrl-side">
+              <button class="map-ctrl-btn" @click="locateMe" title="내 위치"><Locate :size="15" /></button>
+              <button class="map-ctrl-btn" @click="openFullMap" title="크게 보기"><Maximize2 :size="15" /></button>
+            </div>
           </div>
 
           <!-- 식당 길찾기 -->
@@ -166,6 +191,7 @@ import {
   Heart, Leaf, Users, Infinity, Dot,
   CalendarHeart, CalendarDays, MapPin, SquareParking, Phone,
   Info, MapPinned, UtensilsCrossed, Navigation, Map, Sparkles,
+  ZoomIn, ZoomOut, Locate, Maximize2,
 } from 'lucide-vue-next'
 
 // ══════════════════════════════════════════
@@ -175,10 +201,10 @@ const NAVER_CLIENT_ID = 'r3v0svm07f'
 
 // geocoder가 주소 → 좌표 자동 변환
 const REST_ADDR = '경기도 김포시 모담공원로167번길 105'
-const PARK_ADDR = '경기 김포시 운양동 1325-10'
+const PARK_ADDR = '경기도 김포시 모담공원로 170'
 
 const REST_NAME     = '모담 김포 본점'
-const PARK_NAME     = '김포 아트빌리지 주차장'
+const PARK_NAME     = '김포 아트빌리지 공영주차장'
 const REST_PLACE_ID = '1120584413'
 const PARK_PLACE_ID = '1424823651'
 // ══════════════════════════════════════════
@@ -195,13 +221,13 @@ const coords = {
   parking:    { lat: 0, lng: 0 },
 }
 
-const kakaoRestUrl = ref('#')
-const kakaoParkUrl = ref('#')
+const kakaoRestUrl  = ref('#')
+const kakaoParkUrl  = ref('#')
 
 const infoItems = [
-  { icon: CalendarDays,  label: '일 시', value: '2025년 3월 15일 (토요일)',    sub: '오후 12시 30분  ·  도착은 12:00 권장' },
+  { icon: CalendarDays,  label: '일 시', value: '2026년 3월 8일 (일요일)',    sub: '오후 1시 15분  ·  도착은 13:00 권장' },
   { icon: MapPin,        label: '장 소', value: '모담 김포 본점 (한정식)',      sub: REST_ADDR },
-  { icon: SquareParking, label: '주 차', value: PARK_NAME,                     sub: '식당에서 도보 약 2분 · 무료 주차 가능' },
+  { icon: SquareParking, label: '주 차', value: PARK_NAME,                     sub: '식당에서 도보 약 2분' },
   { icon: Phone,         label: '문 의', value: '신랑 측 010-0000-0000',       sub: '신부 측 010-0000-0000' },
 ]
 
@@ -243,32 +269,43 @@ const loadNaverSDK = () =>
     }
   })
 
-const makeMarker = (latLng, label) => new window.naver.maps.Marker({
-  position: latLng,
-  map: naverMap,
-  icon: {
-    content: `
-      <div style="
-        background:#d4a017;color:#fff;
-        font-family:'Noto Serif KR',serif;
-        font-size:11px;font-weight:600;
-        padding:5px 10px;border-radius:3px;
-        white-space:nowrap;
-        box-shadow:0 2px 8px rgba(61,43,0,.4);
-        position:relative;
-      ">
-        ${label}
+const makeMarker = (latLng, label, placeUrl) => {
+  const marker = new window.naver.maps.Marker({
+    position: latLng,
+    map: naverMap,
+    icon: {
+      content: `
         <div style="
-          position:absolute;bottom:-6px;left:50%;
           transform:translateX(-50%);
-          border-left:6px solid transparent;
-          border-right:6px solid transparent;
-          border-top:6px solid #d4a017;
-        "></div>
-      </div>`,
-    anchor: new window.naver.maps.Point(40, 34),
-  },
-})
+          background:#d4a017;color:#fff;
+          font-family:'Noto Serif KR',serif;
+          font-size:11px;font-weight:600;
+          padding:5px 10px;border-radius:3px;
+          white-space:nowrap;
+          box-shadow:0 2px 8px rgba(61,43,0,.4);
+          position:relative;
+          cursor:pointer;
+        ">
+          ${label}
+          <div style="
+            position:absolute;bottom:-6px;left:50%;
+            transform:translateX(-50%);
+            border-left:6px solid transparent;
+            border-right:6px solid transparent;
+            border-top:6px solid #d4a017;
+          "></div>
+        </div>`,
+      anchor: new window.naver.maps.Point(0, 34),
+    },
+  })
+  // 더블클릭 시 장소 페이지 오픈
+  if (placeUrl) {
+    window.naver.maps.Event.addListener(marker, 'dblclick', () => {
+      window.open(placeUrl, '_blank')
+    })
+  }
+  return marker
+}
 
 // 주소 → 좌표 변환
 const geocodeAddress = (address) =>
@@ -303,22 +340,54 @@ const initMap = async () => {
     kakaoRestUrl.value = `https://map.kakao.com/link/to/${encodeURIComponent(REST_NAME)},${c.lat},${c.lng}`
     const latLng = new naver.maps.LatLng(c.lat, c.lng)
     naverMap.setCenter(latLng)
-    markers.restaurant = makeMarker(latLng, REST_NAME)
+    markers.restaurant = makeMarker(latLng, REST_NAME, `https://map.naver.com/p/entry/place/${REST_PLACE_ID}`)
   } catch (e) {
     console.error('식당 geocode 실패', e)
   }
 
-  // 주차장 geocode
-  try {
-    const c = await geocodeAddress(PARK_ADDR)
+  // 주차장 — 좌표 직접 지정 (geocoder 오인식 방지)
+  {
+    const c = { lat: 37.6469362, lng: 126.6972285 }
     coords.parking = c
     kakaoParkUrl.value = `https://map.kakao.com/link/to/${encodeURIComponent(PARK_NAME)},${c.lat},${c.lng}`
     const latLng = new naver.maps.LatLng(c.lat, c.lng)
-    markers.parking = makeMarker(latLng, PARK_NAME)
+    markers.parking = makeMarker(latLng, PARK_NAME, `https://map.naver.com/p/entry/place/${PARK_PLACE_ID}`)
     markers.parking.setVisible(false)
-  } catch (e) {
-    console.error('주차장 geocode 실패', e)
   }
+}
+
+// 줌 컨트롤
+const mapZoom = (delta) => {
+  if (!naverMap) return
+  naverMap.setZoom(naverMap.getZoom() + delta)
+}
+
+// 내 위치 표시
+let myMarker = null
+const locateMe = () => {
+  if (!navigator.geolocation) return
+  navigator.geolocation.getCurrentPosition(({ coords: c }) => {
+    if (!naverMap) return
+    const pos = new window.naver.maps.LatLng(c.latitude, c.longitude)
+    naverMap.setCenter(pos)
+    naverMap.setZoom(17)
+    if (myMarker) { myMarker.setPosition(pos) } else {
+    myMarker = new window.naver.maps.Marker({
+      position: pos,
+      map: naverMap,
+      icon: {
+        content: `<div style="width:14px;height:14px;background:#4a90e2;border:2.5px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(74,144,226,.5)"></div>`,
+        anchor: new window.naver.maps.Point(7, 7),
+      },
+    })
+    }
+  }, () => alert('위치 정보를 가져올 수 없습니다.'))
+}
+
+// 크게 보기 — 현재 탭 장소를 네이버 지도 웹에서 열기
+const openFullMap = () => {
+  const pid = activeMap.value === 'restaurant' ? REST_PLACE_ID : PARK_PLACE_ID
+  window.open(`https://map.naver.com/p/entry/place/${pid}`, '_blank')
 }
 
 const switchMap = (target) => {
@@ -435,8 +504,51 @@ onUnmounted(() => {
 .map-tabs { display:flex;gap:8px;margin-bottom:14px; }
 .map-tab { flex:1;padding:10px 8px;border:1.5px solid rgba(200,152,10,.3);border-radius:3px;background:transparent;font-family:'Noto Serif KR',serif;font-size:12px;color:var(--text-lt);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .22s; &.active{background:var(--brown);border-color:var(--brown);color:#fff} }
 
-.map-frame-wrap { border-radius:3px;overflow:hidden;border:1px solid rgba(200,152,10,.22);margin-bottom:16px; }
+.map-frame-wrap { border-radius:3px;overflow:hidden;border:1px solid rgba(200,152,10,.22);margin-bottom:16px;position:relative; }
 .naver-map { width:100%;height:230px; }
+
+// 공통 컨트롤 버튼
+.map-ctrl-btn {
+  width:32px;height:32px;
+  background:rgba(255,252,238,.92);
+  border:1px solid rgba(200,152,10,.25);
+  border-radius:3px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--brown-mid);
+  transition:all .18s;
+  backdrop-filter:blur(4px);
+  &:hover { background:rgba(245,197,24,.15);border-color:var(--amber-deep);color:var(--brown); }
+}
+.map-ctrl-divider { height:1px;background:rgba(200,152,10,.2);margin:2px 4px; }
+
+// 우측 상단: 줌인/아웃
+.map-ctrl-zoom {
+  position:absolute;top:10px;right:10px;
+  display:flex;flex-direction:column;gap:0;
+  box-shadow:0 2px 8px rgba(61,43,0,.12);
+  border-radius:3px;overflow:hidden;
+  .map-ctrl-btn { border-radius:0;border:none;border-bottom:1px solid rgba(200,152,10,.15);
+    &:last-child{border-bottom:none} }
+}
+
+// 좌측 상단: 내 위치 + 크게 보기
+.map-ctrl-side {
+  position:absolute;top:10px;left:10px;
+  display:flex;flex-direction:column;gap:4px;
+  .map-ctrl-btn { box-shadow:0 2px 8px rgba(61,43,0,.12); }
+}
+
+.place-card { margin-bottom:14px;min-height:72px;position:relative; }
+.place-card-inner {
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(245,197,24,.08),rgba(200,152,10,.04));
+  border:1px solid rgba(200,152,10,.2);border-radius:3px;
+  padding:12px 14px;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+  &.visible { opacity:1;pointer-events:auto;position:relative; }
+}
+.place-title { display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--brown);margin-bottom:5px; }
+.place-desc  { font-size:11.5px;color:var(--text-lt);line-height:1.75;font-weight:300; }
 
 .nav-group { margin-bottom:12px; &:last-child{margin-bottom:0} }
 .nav-group-label { display:flex;align-items:center;gap:6px;font-family:'Playfair Display',serif;font-style:italic;font-size:10.5px;letter-spacing:1.5px;color:var(--text-lt);margin-bottom:7px; }
@@ -452,12 +564,11 @@ onUnmounted(() => {
 
   // 네이버 — 골드 채움
   &.btn-naver {
-    background:linear-gradient(135deg, var(--amber-deep) 0%, var(--amber-dark) 100%);
-    border-color:var(--amber-dark);
-    color:#fff;
+    background:linear-gradient(135deg,rgba(245,197,24,.18) 0%,rgba(200,152,10,.12) 100%);
+    border-color:rgba(200,152,10,.4);
+    color:var(--brown-mid);
     font-weight:600;
-    box-shadow:0 2px 8px rgba(200,152,10,.3);
-    &:hover { background:linear-gradient(135deg,#c8980a 0%,#8a6010 100%);box-shadow:0 4px 14px rgba(200,152,10,.45); }
+    &:hover { background:linear-gradient(135deg,rgba(245,197,24,.28) 0%,rgba(200,152,10,.2) 100%);border-color:var(--amber-deep); }
   }
 
   // 카카오 — 골드 아웃라인

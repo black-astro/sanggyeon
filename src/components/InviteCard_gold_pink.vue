@@ -91,7 +91,7 @@
         <div class="notice">
           <Info :size="15" class="notice-icon" />
           <div>
-            <p>참석 여부를 <strong>3월 10일(월)</strong>까지 알려주시면 감사하겠습니다.</p>
+            <p>부족한 자리이지만 함께해 주신다면 더없는 기쁨이 되겠습니다.</p>
             <p>편안한 마음으로 왕림해 주시길 바랍니다.</p>
           </div>
         </div>
@@ -99,6 +99,20 @@
         <!-- 오시는 길 -->
         <section class="section">
           <span class="sec-label"><MapPinned :size="13" />오시는 길</span>
+
+          <!-- 장소 설명 카드 -->
+          <div class="place-card">
+            <div class="place-card-inner" :class="{ visible: activeMap === 'restaurant' }">
+              <div class="place-title"><UtensilsCrossed :size="13" />모담 김포 본점</div>
+              <div class="place-desc">전통 한정식 전문점 · 프라이빗 룸 운영<br/>경기도 김포시 모담공원로167번길 105</div>
+
+            </div>
+            <div class="place-card-inner" :class="{ visible: activeMap === 'parking' }">
+              <div class="place-title"><SquareParking :size="13" />김포 아트빌리지 공영주차장</div>
+              <div class="place-desc">식당에서 도보 약 2분<br/>경기도 김포시 모담공원로 170</div>
+
+            </div>
+          </div>
 
           <div class="map-tabs">
             <button class="map-tab" :class="{ active: activeMap === 'restaurant' }" @click="switchMap('restaurant')">
@@ -183,7 +197,7 @@ import {
 // ══════════════════════════════════════════
 // ✅ 여기만 수정
 // ══════════════════════════════════════════
-const NAVER_CLIENT_ID = 'r3v0svm07f'
+const NAVER_CLIENT_ID = 'YOUR_CLIENT_ID_HERE'
 
 // geocoder가 주소 → 좌표 자동 변환
 const REST_ADDR = '경기도 김포시 모담공원로167번길 105'
@@ -207,13 +221,13 @@ const coords = {
   parking:    { lat: 0, lng: 0 },
 }
 
-const kakaoRestUrl = ref('#')
-const kakaoParkUrl = ref('#')
+const kakaoRestUrl  = ref('#')
+const kakaoParkUrl  = ref('#')
 
 const infoItems = [
-  { icon: CalendarDays,  label: '일 시', value: '2025년 3월 15일 (토요일)',    sub: '오후 12시 30분  ·  도착은 12:00 권장' },
+  { icon: CalendarDays,  label: '일 시', value: '2026년 3월 8일 (일요일)',    sub: '오후 1시 15분  ·  도착은 13:00 권장' },
   { icon: MapPin,        label: '장 소', value: '모담 김포 본점 (한정식)',      sub: REST_ADDR },
-  { icon: SquareParking, label: '주 차', value: PARK_NAME,                     sub: '식당에서 도보 약 2분 · 무료 주차 가능' },
+  { icon: SquareParking, label: '주 차', value: PARK_NAME,                     sub: '식당에서 도보 약 2분' },
   { icon: Phone,         label: '문 의', value: '신랑 측 010-0000-0000',       sub: '신부 측 010-0000-0000' },
 ]
 
@@ -255,32 +269,43 @@ const loadNaverSDK = () =>
     }
   })
 
-const makeMarker = (latLng, label) => new window.naver.maps.Marker({
-  position: latLng,
-  map: naverMap,
-  icon: {
-    content: `
-      <div style="
-        background:#d4a017;color:#fff;
-        font-family:'Noto Serif KR',serif;
-        font-size:11px;font-weight:600;
-        padding:5px 10px;border-radius:3px;
-        white-space:nowrap;
-        box-shadow:0 2px 8px rgba(61,43,0,.4);
-        position:relative;
-      ">
-        ${label}
+const makeMarker = (latLng, label, placeUrl) => {
+  const marker = new window.naver.maps.Marker({
+    position: latLng,
+    map: naverMap,
+    icon: {
+      content: `
         <div style="
-          position:absolute;bottom:-6px;left:50%;
           transform:translateX(-50%);
-          border-left:6px solid transparent;
-          border-right:6px solid transparent;
-          border-top:6px solid #d4a017;
-        "></div>
-      </div>`,
-    anchor: new window.naver.maps.Point(40, 34),
-  },
-})
+          background:#d4a017;color:#fff;
+          font-family:'Noto Serif KR',serif;
+          font-size:11px;font-weight:600;
+          padding:5px 10px;border-radius:3px;
+          white-space:nowrap;
+          box-shadow:0 2px 8px rgba(61,43,0,.4);
+          position:relative;
+          cursor:pointer;
+        ">
+          ${label}
+          <div style="
+            position:absolute;bottom:-6px;left:50%;
+            transform:translateX(-50%);
+            border-left:6px solid transparent;
+            border-right:6px solid transparent;
+            border-top:6px solid #d4a017;
+          "></div>
+        </div>`,
+      anchor: new window.naver.maps.Point(0, 34),
+    },
+  })
+  // 더블클릭 시 장소 페이지 오픈
+  if (placeUrl) {
+    window.naver.maps.Event.addListener(marker, 'dblclick', () => {
+      window.open(placeUrl, '_blank')
+    })
+  }
+  return marker
+}
 
 // 주소 → 좌표 변환
 const geocodeAddress = (address) =>
@@ -315,18 +340,18 @@ const initMap = async () => {
     kakaoRestUrl.value = `https://map.kakao.com/link/to/${encodeURIComponent(REST_NAME)},${c.lat},${c.lng}`
     const latLng = new naver.maps.LatLng(c.lat, c.lng)
     naverMap.setCenter(latLng)
-    markers.restaurant = makeMarker(latLng, REST_NAME)
+    markers.restaurant = makeMarker(latLng, REST_NAME, `https://map.naver.com/p/entry/place/${REST_PLACE_ID}`)
   } catch (e) {
     console.error('식당 geocode 실패', e)
   }
 
   // 주차장 — 좌표 직접 지정 (geocoder 오인식 방지)
   {
-    const c = { lat: 37.64697268534198, lng: 126.69727012440167 }
+    const c = { lat: 37.6469362, lng: 126.6972285 }
     coords.parking = c
     kakaoParkUrl.value = `https://map.kakao.com/link/to/${encodeURIComponent(PARK_NAME)},${c.lat},${c.lng}`
     const latLng = new naver.maps.LatLng(c.lat, c.lng)
-    markers.parking = makeMarker(latLng, PARK_NAME)
+    markers.parking = makeMarker(latLng, PARK_NAME, `https://map.naver.com/p/entry/place/${PARK_PLACE_ID}`)
     markers.parking.setVisible(false)
   }
 }
@@ -341,12 +366,12 @@ const mapZoom = (delta) => {
 let myMarker = null
 const locateMe = () => {
   if (!navigator.geolocation) return
-  navigator.geolocation.getCurrentPosition(({ coords }) => {
+  navigator.geolocation.getCurrentPosition(({ coords: c }) => {
     if (!naverMap) return
-    const pos = new window.naver.maps.LatLng(coords.latitude, coords.longitude)
+    const pos = new window.naver.maps.LatLng(c.latitude, c.longitude)
     naverMap.setCenter(pos)
     naverMap.setZoom(17)
-    if (myMarker) { myMarker.setPosition(pos); return }
+    if (myMarker) { myMarker.setPosition(pos) } else {
     myMarker = new window.naver.maps.Marker({
       position: pos,
       map: naverMap,
@@ -355,6 +380,7 @@ const locateMe = () => {
         anchor: new window.naver.maps.Point(7, 7),
       },
     })
+    }
   }, () => alert('위치 정보를 가져올 수 없습니다.'))
 }
 
@@ -375,17 +401,89 @@ const switchMap = (target) => {
   markers.parking?.setVisible(target === 'parking')
 }
 
-// ── 꽃잎 ──
+// ── 벚꽃 꽃잎 ──
 let ctx = null, petalArr = [], animId = null, running = false
 const isMobile   = window.innerWidth <= 480
-const MAX_PETALS = isMobile ? 25 : 50
-const SPAWN_PROB = isMobile ? 0.12 : 0.20
-const COLORS = ['rgba(245,197,24,A)','rgba(232,180,10,A)','rgba(255,215,80,A)','rgba(200,152,10,A)','rgba(255,230,120,A)','rgba(210,170,60,A)']
-const randColor   = () => COLORS[Math.floor(Math.random()*COLORS.length)].replace('A',(0.28+Math.random()*0.32).toFixed(2))
-const newPetal    = W => ({x:Math.random()*W,y:-20,rx:2.5+Math.random()*6,rot:Math.random()*Math.PI*2,rotSpd:(Math.random()-.5)*.038,vx:(Math.random()-.5)*.7,vy:.4+Math.random()*.8,swing:Math.random()*Math.PI*2,swingSpd:.015+Math.random()*.018,color:randColor()})
-const drawPetal   = p => {ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.color;ctx.beginPath();ctx.ellipse(0,0,p.rx,p.rx*.42,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(255,255,255,.15)';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(0,-p.rx*.35);ctx.lineTo(0,p.rx*.35);ctx.stroke();ctx.restore()}
+const MAX_PETALS = isMobile ? 28 : 55
+const SPAWN_PROB = isMobile ? 0.13 : 0.22
+
+// 벚꽃 색상: 연분홍 ~ 흰분홍 계열
+const COLORS = [
+  'rgba(255,183,197,A)', // 연분홍
+  'rgba(255,209,220,A)', // 밝은 분홍
+  'rgba(255,228,232,A)', // 아이보리 핑크
+  'rgba(252,196,211,A)', // 중간 분홍
+  'rgba(255,240,244,A)', // 거의 흰색
+  'rgba(248,175,192,A)', // 진한 분홍
+]
+const randColor = () => COLORS[Math.floor(Math.random()*COLORS.length)].replace('A',(0.55+Math.random()*0.35).toFixed(2))
+
+const newPetal = W => ({
+  x: Math.random() * W,
+  y: -20,
+  size: 5 + Math.random() * 7,       // 꽃잎 크기
+  rot: Math.random() * Math.PI * 2,
+  rotSpd: (Math.random() - .5) * .03,
+  vx: (Math.random() - .5) * .8,
+  vy: .35 + Math.random() * .7,
+  swing: Math.random() * Math.PI * 2,
+  swingSpd: .012 + Math.random() * .016,
+  color: randColor(),
+  type: Math.random() < 0.7 ? 'petal' : 'round', // 70% 꽃잎, 30% 동그란 꽃잎
+})
+
+// 벚꽃 꽃잎: 끝이 하트 모양인 타원형
+const drawCherryPetal = (size, color) => {
+  ctx.fillStyle = color
+  // 꽃잎 하나: bezier curve로 끝이 오목한 타원
+  const w = size, h = size * 1.6
+  ctx.beginPath()
+  // 위쪽 중심 (꽃잎 베이스)
+  ctx.moveTo(0, h * .5)
+  // 왼쪽 곡선
+  ctx.bezierCurveTo(-w * .9, h * .2, -w * .85, -h * .3, 0, -h * .5)
+  // 오른쪽 곡선
+  ctx.bezierCurveTo(w * .85, -h * .3, w * .9, h * .2, 0, h * .5)
+  ctx.fill()
+
+  // 끝 부분 하트 노치 (살짝 오목하게)
+  ctx.fillStyle = 'rgba(0,0,0,0.06)'
+  ctx.beginPath()
+  ctx.arc(0, -h * .48, size * .18, 0, Math.PI * 2)
+  ctx.fill()
+
+  // 중앙 줄기 선
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)'
+  ctx.lineWidth = 0.6
+  ctx.beginPath()
+  ctx.moveTo(0, h * .4)
+  ctx.lineTo(0, -h * .35)
+  ctx.stroke()
+}
+
+const drawPetal = p => {
+  ctx.save()
+  ctx.translate(p.x, p.y)
+  ctx.rotate(p.rot)
+
+  if (p.type === 'petal') {
+    drawCherryPetal(p.size, p.color)
+  } else {
+    // 동그란 꽃잎 (5장짜리 벚꽃 느낌)
+    ctx.fillStyle = p.color
+    ctx.beginPath()
+    ctx.ellipse(0, 0, p.size * .7, p.size * .9, 0, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)'
+    ctx.lineWidth = 0.5
+    ctx.stroke()
+  }
+
+  ctx.restore()
+}
+
 const resize      = () => {if(!canvasRef.value)return;canvasRef.value.width=window.innerWidth;canvasRef.value.height=window.innerHeight}
-const loop        = () => {if(!running)return;const W=canvasRef.value.width,H=canvasRef.value.height;ctx.clearRect(0,0,W,H);if(petalArr.length<MAX_PETALS&&Math.random()<SPAWN_PROB)petalArr.push(newPetal(W));petalArr.forEach(p=>{p.swing+=p.swingSpd;p.x+=p.vx+Math.sin(p.swing)*.42;p.y+=p.vy;p.rot+=p.rotSpd;drawPetal(p)});petalArr=petalArr.filter(p=>p.y<H+30&&p.x>-60&&p.x<W+60);animId=requestAnimationFrame(loop)}
+const loop        = () => {if(!running)return;const W=canvasRef.value.width,H=canvasRef.value.height;ctx.clearRect(0,0,W,H);if(petalArr.length<MAX_PETALS&&Math.random()<SPAWN_PROB)petalArr.push(newPetal(W));petalArr.forEach(p=>{p.swing+=p.swingSpd;p.x+=p.vx+Math.sin(p.swing)*.55;p.y+=p.vy;p.rot+=p.rotSpd;drawPetal(p)});petalArr=petalArr.filter(p=>p.y<H+30&&p.x>-60&&p.x<W+60);animId=requestAnimationFrame(loop)}
 const startPetals = () => {if(running)return;running=true;canvasRef.value?.classList.remove('off');loop()}
 const stopPetals  = () => {running=false;cancelAnimationFrame(animId);canvasRef.value?.classList.add('off');setTimeout(()=>{ctx?.clearRect(0,0,canvasRef.value?.width,canvasRef.value?.height);petalArr=[]},900)}
 const togglePetals = () => {petals.value=!petals.value;petals.value?startPetals():stopPetals()}
@@ -512,6 +610,18 @@ onUnmounted(() => {
   .map-ctrl-btn { box-shadow:0 2px 8px rgba(61,43,0,.12); }
 }
 
+.place-card { margin-bottom:14px;min-height:72px;position:relative; }
+.place-card-inner {
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(245,197,24,.08),rgba(200,152,10,.04));
+  border:1px solid rgba(200,152,10,.2);border-radius:3px;
+  padding:12px 14px;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+  &.visible { opacity:1;pointer-events:auto;position:relative; }
+}
+.place-title { display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--brown);margin-bottom:5px; }
+.place-desc  { font-size:11.5px;color:var(--text-lt);line-height:1.75;font-weight:300; }
+
 .nav-group { margin-bottom:12px; &:last-child{margin-bottom:0} }
 .nav-group-label { display:flex;align-items:center;gap:6px;font-family:'Playfair Display',serif;font-style:italic;font-size:10.5px;letter-spacing:1.5px;color:var(--text-lt);margin-bottom:7px; }
 
@@ -526,12 +636,11 @@ onUnmounted(() => {
 
   // 네이버 — 골드 채움
   &.btn-naver {
-    background:linear-gradient(135deg, var(--amber-deep) 0%, var(--amber-dark) 100%);
-    border-color:var(--amber-dark);
-    color:#fff;
+    background:linear-gradient(135deg,rgba(245,197,24,.18) 0%,rgba(200,152,10,.12) 100%);
+    border-color:rgba(200,152,10,.4);
+    color:var(--brown-mid);
     font-weight:600;
-    box-shadow:0 2px 8px rgba(200,152,10,.3);
-    &:hover { background:linear-gradient(135deg,#c8980a 0%,#8a6010 100%);box-shadow:0 4px 14px rgba(200,152,10,.45); }
+    &:hover { background:linear-gradient(135deg,rgba(245,197,24,.28) 0%,rgba(200,152,10,.2) 100%);border-color:var(--amber-deep); }
   }
 
   // 카카오 — 골드 아웃라인
