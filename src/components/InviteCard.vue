@@ -35,9 +35,7 @@
         <!-- 인사말 -->
         <section class="section greeting">
           <div class="greeting-deco">
-            <span class="deco-line l" />
-            <Leaf :size="14" />
-            <span class="deco-line r" />
+            <span class="deco-line l" /><Leaf :size="14" /><span class="deco-line r" />
           </div>
           <p class="greeting-main">
             두 사람의 <em>사랑</em>이 하나가 되는 날,<br />
@@ -119,12 +117,9 @@
           <div class="nav-group">
             <div class="nav-group-label"><UtensilsCrossed :size="12" />식당 길찾기</div>
             <div class="btn-map-row">
-              <button class="btn-map" @click="openNaver('restaurant')">
-                <Navigation :size="14" />네이버
+              <button class="btn-map btn-naver" @click="openNaver('restaurant')">
+                <Navigation :size="14" />네이버 지도
               </button>
-              <a class="btn-map" :href="kakaoRestUrl" target="_blank" rel="noopener">
-                <Map :size="14" />카카오
-              </a>
             </div>
           </div>
 
@@ -132,12 +127,9 @@
           <div class="nav-group">
             <div class="nav-group-label"><SquareParking :size="12" />주차장 길찾기</div>
             <div class="btn-map-row">
-              <button class="btn-map" @click="openNaver('parking')">
-                <Navigation :size="14" />네이버
+              <button class="btn-map btn-naver" @click="openNaver('parking')">
+                <Navigation :size="14" />네이버 지도
               </button>
-              <a class="btn-map" :href="kakaoParkUrl" target="_blank" rel="noopener">
-                <Map :size="14" />카카오
-              </a>
             </div>
           </div>
         </section>
@@ -167,25 +159,16 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import {
   Heart, Leaf, Users, Infinity, Dot,
   CalendarHeart, CalendarDays, MapPin, SquareParking, Phone,
-  Info, MapPinned, UtensilsCrossed, Navigation, Map, Sparkles,
+  Info, MapPinned, UtensilsCrossed, Navigation, Sparkles,
 } from 'lucide-vue-next'
 
 // ══════════════════════════════════════════
-// ✅ 여기만 수정
+// ✅ 수정 필요한 곳
 // ══════════════════════════════════════════
-const NAVER_CLIENT_ID = 'r3v0svm07f'
+const NAVER_CLIENT_ID = 'YOUR_CLIENT_ID_HERE'
 
-// geocoder가 주소로 좌표를 자동 조회함
-// 주소가 정확할수록 정확하게 찍힘
-const REST_ADDR = '경기도 김포시 모담공원로167번길 105'
-const PARK_ADDR = '경기도 김포시 모담공원로 170'
-
-const REST_NAME = '모담 김포 본점'
-const PARK_NAME = '김포 아트빌리지 주차장'
-
-// 네이버 Place ID (딥링크 웹 fallback용)
-const REST_PLACE_ID = '1120584413'
-const PARK_PLACE_ID = '1424823651'
+const REST = { lat: 37.6118, lng: 126.7152, name: '모담 김포 본점',          placeId: '1120584413' }
+const PARK = { lat: 37.6128, lng: 126.7160, name: '김포 아트빌리지 공영주차장', placeId: '1424823651' }
 // ══════════════════════════════════════════
 
 const cardRef   = ref(null)
@@ -194,206 +177,110 @@ const mapEl     = ref(null)
 const petals    = ref(true)
 const activeMap = ref('restaurant')
 
-// 런타임에 geocoder가 채워줄 좌표 (카카오 딥링크용)
-const coords = {
-  restaurant: { lat: 0, lng: 0 },
-  parking:    { lat: 0, lng: 0 },
-}
-
 const infoItems = [
-  { icon: CalendarDays,  label: '일 시', value: '2025년 3월 15일 (토요일)',   sub: '오후 12시 30분  ·  도착은 12:00 권장' },
-  { icon: MapPin,        label: '장 소', value: '모담 김포 본점 (한정식)',     sub: REST_ADDR },
-  { icon: SquareParking, label: '주 차', value: PARK_NAME,                    sub: '식당에서 도보 약 2분 · 무료 주차 가능' },
-  { icon: Phone,         label: '문 의', value: '신랑 측 010-0000-0000',      sub: '신부 측 010-0000-0000' },
+  { icon: CalendarDays,  label: '일 시', value: '2025년 3월 15일 (토요일)',    sub: '오후 12시 30분  ·  도착은 12:00 권장' },
+  { icon: MapPin,        label: '장 소', value: '모담 김포 본점 (한정식)',      sub: '경기도 김포시 고촌읍 아라육로 지하 105' },
+  { icon: SquareParking, label: '주 차', value: '김포 아트빌리지 공영주차장',   sub: '식당에서 도보 약 2분 · 무료 주차 가능' },
+  { icon: Phone,         label: '문 의', value: '신랑 측 010-0000-0000',       sub: '신부 측 010-0000-0000' },
 ]
 
-// 카카오 URL은 geocoder 완료 후 좌표가 채워진 뒤 사용됨
-const kakaoRestUrl = ref('#')
-const kakaoParkUrl = ref('#')
-
-// 네이버 딥링크
+// 네이버 길찾기: 앱 스킴 시도 → 실패 시 웹 Place 페이지로 fallback
 const openNaver = (target) => {
-  const c   = coords[target]
-  const name = target === 'restaurant' ? REST_NAME : PARK_NAME
-  const pid  = target === 'restaurant' ? REST_PLACE_ID : PARK_PLACE_ID
+  const t = target === 'restaurant' ? REST : PARK
+  const appScheme = `nmap://route/public?dlat=${t.lat}&dlng=${t.lng}&dname=${encodeURIComponent(t.name)}&appname=kr.sanggyeonrye`
+  const webUrl    = `https://map.naver.com/p/entry/place/${t.placeId}`
 
-  if (c.lat && c.lng) {
-    const appScheme = `nmap://route/public?dlat=${c.lat}&dlng=${c.lng}&dname=${encodeURIComponent(name)}&appname=kr.sanggyeonrye`
-    window.location.href = appScheme
-  }
-  setTimeout(() => window.open(`https://map.naver.com/p/entry/place/${pid}`, '_blank'), 500)
+  // 앱 스킴 시도
+  window.location.href = appScheme
+  // 앱 없으면 500ms 후 웹으로
+  setTimeout(() => window.open(webUrl, '_blank'), 500)
 }
 
 // ── 네이버 지도 SDK ──
 let naverMap = null
 let markers  = {}
 
-// const loadNaverSDK = () =>
-//   new Promise((resolve) => {
-//     if (window.naver?.maps) { resolve(); return }
-//     const script = document.createElement('script')
-//     // submodules=geocoder 반드시 포함
-//     script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${NAVER_CLIENT_ID}&submodules=geocoder`
-//     script.onload = resolve
-//     document.head.appendChild(script)
-//   })
-
-
-
 const loadNaverSDK = () =>
-  new Promise((resolve, reject) => {
-    if (window.naver && window.naver.maps && window.naver.maps.Service && window.naver.maps.Service.geocode) {
-      resolve()
-      return
-    }
-
-    const done = () => {
-      if (window.naver && window.naver.maps && window.naver.maps.Service && window.naver.maps.Service.geocode) {
-        resolve()
-      } else {
-        reject(new Error('geocoder 로드 실패'))
-      }
-    }
-
-    const existing = document.querySelector('script[data-naver-maps-sdk="true"]')
-    if (existing) {
-      if (window.naver && window.naver.maps) {
-        window.naver.maps.onJSContentLoaded = done
-      } else {
-        reject(new Error('naver maps 객체 없음'))
-      }
-      return
-    }
-
+  new Promise((resolve) => {
+    if (window.naver?.maps?.Service?.geocode) { resolve(); return }
     const script = document.createElement('script')
-    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${NAVER_CLIENT_ID}&submodules=geocoder`
-    script.dataset.naverMapsSdk = 'true'
-    script.onerror = reject
-    document.head.appendChild(script)
-
+    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${NAVER_CLIENT_ID}&submodules=geocoder`
     script.onload = () => {
-      if (window.naver && window.naver.maps && window.naver.maps.Service && window.naver.maps.Service.geocode) {
-        resolve()
-      } else if (window.naver && window.naver.maps) {
-        window.naver.maps.onJSContentLoaded = done
-      } else {
-        reject(new Error('naver maps 로드 실패'))
-      }
+      // onload 직후 geocoder 서브모듈이 아직 미준비 상태일 수 있어서 폴링으로 대기
+      const wait = setInterval(() => {
+        if (window.naver?.maps?.Service?.geocode) {
+          clearInterval(wait)
+          resolve()
+        }
+      }, 50)
     }
+    document.head.appendChild(script)
   })
-  
+
 const makeMarker = (latLng, label) => new window.naver.maps.Marker({
   position: latLng,
   map: naverMap,
   icon: {
     content: `
-      <div style="background:#d4a017;color:#fff;font-size:11px;font-weight:600;
-        padding:5px 10px;border-radius:3px;white-space:nowrap;
-        box-shadow:0 2px 8px rgba(61,43,0,.35);position:relative;">
+      <div style="
+        background:#d4a017;color:#fff;
+        font-family:'Noto Serif KR',serif;
+        font-size:11px;font-weight:600;
+        padding:5px 10px;border-radius:3px;
+        white-space:nowrap;
+        box-shadow:0 2px 8px rgba(61,43,0,.4);
+        position:relative;
+      ">
         ${label}
-        <div style="position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);
-          border-left:6px solid transparent;border-right:6px solid transparent;
-          border-top:6px solid #d4a017;"></div>
-      </div>`
+        <div style="
+          position:absolute;bottom:-6px;left:50%;
+          transform:translateX(-50%);
+          border-left:6px solid transparent;
+          border-right:6px solid transparent;
+          border-top:6px solid #d4a017;
+        "></div>
+      </div>`,
+    anchor: new window.naver.maps.Point(40, 34),
   },
 })
 
-// 주소 → 좌표 변환 (네이버 geocoder 서브모듈)
-// const geocodeAddress = (address) =>
-//   new Promise((resolve) => {
-//     window.naver.maps.Service.geocode({ query: address }, (status, res) => {
-//       if (status === window.naver.maps.Service.Status.OK && res?.v2?.addresses?.length > 0) {
-//         const { x, y } = res.v2.addresses[0]  // x=경도, y=위도
-//         resolve({ lat: parseFloat(y), lng: parseFloat(x) })
-//       } else {
-//         resolve(null)
-//       }
-//     })
-//   })
-
-const geocodeAddress = (address) =>
-  new Promise((resolve, reject) => {
-    if (!window.naver?.maps?.Service?.geocode) {
-      reject(new Error('geocoder 미로드'))
-      return
-    }
-
-    window.naver.maps.Service.geocode(
-      { query: address },
-      (status, res) => {
-        if (status !== window.naver.maps.Service.Status.OK) {
-          reject(new Error(`geocode 실패: ${status}`))
-          return
-        }
-
-        const item = res?.v2?.addresses?.[0]
-        if (!item) {
-          reject(new Error('검색 결과 없음'))
-          return
-        }
-
-        resolve({
-          lat: Number(item.y), // 위도
-          lng: Number(item.x), // 경도
-        })
-      }
-    )
-  })
-const initMap = async () => {
-  const naver = window.naver
+const initMap = () => {
+  const naver  = window.naver
+  const center = new naver.maps.LatLng(REST.lat, REST.lng)
 
   naverMap = new naver.maps.Map(mapEl.value, {
-    center: new naver.maps.LatLng(37.611, 126.715),
+    center,
     zoom: 17,
     zoomControl: false,
     mapDataControl: false,
     scaleControl: false,
   })
 
-  try {
-    const restCoord = await geocodeAddress(REST_ADDR)
-    coords.restaurant = restCoord
-    kakaoRestUrl.value = `https://map.kakao.com/link/to/${encodeURIComponent(REST_NAME)},${restCoord.lat},${restCoord.lng}`
-    const latLng = new naver.maps.LatLng(restCoord.lat, restCoord.lng)
-    naverMap.setCenter(latLng)
-    markers.restaurant = makeMarker(latLng, REST_NAME)
-  } catch (e) {
-    console.error('식당 geocode 실패', e)
-  }
-
-  try {
-    const parkCoord = await geocodeAddress(PARK_ADDR)
-    coords.parking = parkCoord
-    kakaoParkUrl.value = `https://map.kakao.com/link/to/${encodeURIComponent(PARK_NAME)},${parkCoord.lat},${parkCoord.lng}`
-    const latLng = new naver.maps.LatLng(parkCoord.lat, parkCoord.lng)
-    markers.parking = makeMarker(latLng, PARK_NAME)
-    markers.parking.setVisible(false)
-  } catch (e) {
-    console.error('주차장 geocode 실패', e)
-  }
+  markers.restaurant = makeMarker(new naver.maps.LatLng(REST.lat, REST.lng), REST.name)
+  markers.parking    = makeMarker(new naver.maps.LatLng(PARK.lat, PARK.lng), PARK.name)
+  markers.parking.setVisible(false)
 }
+
 const switchMap = (target) => {
   activeMap.value = target
   if (!naverMap) return
-  const c = coords[target]
-  if (c.lat && c.lng) {
-    naverMap.setCenter(new window.naver.maps.LatLng(c.lat, c.lng))
-  }
+  const t = target === 'restaurant' ? REST : PARK
+  naverMap.setCenter(new window.naver.maps.LatLng(t.lat, t.lng))
   markers.restaurant?.setVisible(target === 'restaurant')
   markers.parking?.setVisible(target === 'parking')
 }
 
 // ── 꽃잎 ──
 let ctx = null, petalArr = [], animId = null, running = false
-const isMobile = window.innerWidth <= 480
+const isMobile   = window.innerWidth <= 480
 const MAX_PETALS = isMobile ? 25 : 50
 const SPAWN_PROB = isMobile ? 0.12 : 0.20
 const COLORS = ['rgba(245,197,24,A)','rgba(232,180,10,A)','rgba(255,215,80,A)','rgba(200,152,10,A)','rgba(255,230,120,A)','rgba(210,170,60,A)']
-const randColor = () => COLORS[Math.floor(Math.random()*COLORS.length)].replace('A',(0.28+Math.random()*0.32).toFixed(2))
-const newPetal  = W => ({x:Math.random()*W,y:-20,rx:2.5+Math.random()*6,rot:Math.random()*Math.PI*2,rotSpd:(Math.random()-.5)*.038,vx:(Math.random()-.5)*.7,vy:.4+Math.random()*.8,swing:Math.random()*Math.PI*2,swingSpd:.015+Math.random()*.018,color:randColor()})
-const drawPetal = p => {ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.color;ctx.beginPath();ctx.ellipse(0,0,p.rx,p.rx*.42,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(255,255,255,.15)';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(0,-p.rx*.35);ctx.lineTo(0,p.rx*.35);ctx.stroke();ctx.restore()}
-const resize    = () => {if(!canvasRef.value)return;canvasRef.value.width=window.innerWidth;canvasRef.value.height=window.innerHeight}
-const loop      = () => {if(!running)return;const W=canvasRef.value.width,H=canvasRef.value.height;ctx.clearRect(0,0,W,H);if(petalArr.length<MAX_PETALS&&Math.random()<SPAWN_PROB)petalArr.push(newPetal(W));petalArr.forEach(p=>{p.swing+=p.swingSpd;p.x+=p.vx+Math.sin(p.swing)*.42;p.y+=p.vy;p.rot+=p.rotSpd;drawPetal(p)});petalArr=petalArr.filter(p=>p.y<H+30&&p.x>-60&&p.x<W+60);animId=requestAnimationFrame(loop)}
+const randColor   = () => COLORS[Math.floor(Math.random()*COLORS.length)].replace('A',(0.28+Math.random()*0.32).toFixed(2))
+const newPetal    = W => ({x:Math.random()*W,y:-20,rx:2.5+Math.random()*6,rot:Math.random()*Math.PI*2,rotSpd:(Math.random()-.5)*.038,vx:(Math.random()-.5)*.7,vy:.4+Math.random()*.8,swing:Math.random()*Math.PI*2,swingSpd:.015+Math.random()*.018,color:randColor()})
+const drawPetal   = p => {ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.color;ctx.beginPath();ctx.ellipse(0,0,p.rx,p.rx*.42,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(255,255,255,.15)';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(0,-p.rx*.35);ctx.lineTo(0,p.rx*.35);ctx.stroke();ctx.restore()}
+const resize      = () => {if(!canvasRef.value)return;canvasRef.value.width=window.innerWidth;canvasRef.value.height=window.innerHeight}
+const loop        = () => {if(!running)return;const W=canvasRef.value.width,H=canvasRef.value.height;ctx.clearRect(0,0,W,H);if(petalArr.length<MAX_PETALS&&Math.random()<SPAWN_PROB)petalArr.push(newPetal(W));petalArr.forEach(p=>{p.swing+=p.swingSpd;p.x+=p.vx+Math.sin(p.swing)*.42;p.y+=p.vy;p.rot+=p.rotSpd;drawPetal(p)});petalArr=petalArr.filter(p=>p.y<H+30&&p.x>-60&&p.x<W+60);animId=requestAnimationFrame(loop)}
 const startPetals = () => {if(running)return;running=true;canvasRef.value?.classList.remove('off');loop()}
 const stopPetals  = () => {running=false;cancelAnimationFrame(animId);canvasRef.value?.classList.add('off');setTimeout(()=>{ctx?.clearRect(0,0,canvasRef.value?.width,canvasRef.value?.height);petalArr=[]},900)}
 const togglePetals = () => {petals.value=!petals.value;petals.value?startPetals():stopPetals()}
@@ -405,7 +292,7 @@ onMounted(async () => {
   startPetals()
   setTimeout(() => cardRef.value?.classList.add('revealed'), 80)
   await loadNaverSDK()
-  await initMap()
+  initMap()
 })
 
 onUnmounted(() => {
@@ -431,7 +318,7 @@ onUnmounted(() => {
   --text-lt:    #8a6c30;
 }
 
-.bg-layer { position:fixed;inset:0;z-index:0;pointer-events:none; background: radial-gradient(ellipse 65% 45% at 10% 5%, rgba(245,197,24,.16) 0%, transparent 55%), radial-gradient(ellipse 50% 65% at 90% 95%, rgba(200,152,10,.12) 0%, transparent 52%), radial-gradient(ellipse 130% 130% at 50% 50%, var(--ivory) 0%, var(--ivory-dark) 100%); }
+.bg-layer { position:fixed;inset:0;z-index:0;pointer-events:none; background:radial-gradient(ellipse 65% 45% at 10% 5%,rgba(245,197,24,.16) 0%,transparent 55%),radial-gradient(ellipse 50% 65% at 90% 95%,rgba(200,152,10,.12) 0%,transparent 52%),radial-gradient(ellipse 130% 130% at 50% 50%,var(--ivory) 0%,var(--ivory-dark) 100%); }
 
 .petal-canvas { position:fixed;inset:0;pointer-events:none;z-index:10;transition:opacity .9s ease; &.off{opacity:0} }
 
@@ -491,8 +378,26 @@ onUnmounted(() => {
 
 .nav-group { margin-bottom:12px; &:last-child{margin-bottom:0} }
 .nav-group-label { display:flex;align-items:center;gap:6px;font-family:'Playfair Display',serif;font-style:italic;font-size:10.5px;letter-spacing:1.5px;color:var(--text-lt);margin-bottom:7px; }
-.btn-map-row { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
-.btn-map { padding:12px 8px;background:transparent;color:var(--brown-mid);border:1.5px solid rgba(200,152,10,.32);border-radius:3px;font-family:'Noto Serif KR',serif;font-size:12.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .22s;text-decoration:none; &:hover{background:rgba(200,152,10,.07);border-color:var(--gold)} }
+
+.btn-map-row { display:grid;grid-template-columns:1fr;gap:8px; }
+
+.btn-map {
+  padding:12px 16px;background:transparent;color:var(--brown-mid);
+  border:1.5px solid rgba(200,152,10,.32);border-radius:3px;
+  font-family:'Noto Serif KR',serif;font-size:13px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all .22s;text-decoration:none;width:100%;
+
+  &:hover { background:rgba(200,152,10,.07);border-color:var(--gold); }
+
+  &.btn-naver {
+    background:rgba(3,199,90,.06);
+    border-color:rgba(3,199,90,.3);
+    color:#028a3e;
+
+    &:hover { background:rgba(3,199,90,.12);border-color:rgba(3,199,90,.5); }
+  }
+}
 
 .petal-wrap { display:flex;justify-content:center;margin-top:8px; }
 .petal-btn { display:inline-flex;align-items:center;gap:10px;padding:11px 22px;background:transparent;border:1px dashed rgba(200,152,10,.38);border-radius:40px;cursor:pointer;font-family:'Noto Serif KR',serif;font-size:13px;color:var(--text-lt);transition:all .25s;user-select:none; &:hover{background:rgba(200,152,10,.08);color:var(--gold)} &.on{color:var(--brown-mid)} }
