@@ -322,7 +322,7 @@ const initMap = async () => {
 
   // 주차장 — 좌표 직접 지정 (geocoder 오인식 방지)
   {
-    const c = { lat: 37.6469362, lng: 126.6972285 }
+    const c = { lat: 37.6464826, lng: 126.6962041 }
     coords.parking = c
     kakaoParkUrl.value = `https://map.kakao.com/link/to/${encodeURIComponent(PARK_NAME)},${c.lat},${c.lng}`
     const latLng = new naver.maps.LatLng(c.lat, c.lng)
