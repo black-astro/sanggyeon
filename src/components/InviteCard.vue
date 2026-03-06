@@ -206,7 +206,7 @@ import {
 // ══════════════════════════════════════════
 // ✅ 여기만 수정하면 됨
 // ══════════════════════════════════════════
-const NAVER_CLIENT_ID = 'zcm9qztmhe'   // ← 발급받은 Client ID 교체
+const NAVER_CLIENT_ID = 'r3v0svm07f'   // ← 발급받은 Client ID 교체
 
 const REST = { lat: 37.61184, lng: 126.71523, name: '모담 김포 본점' }
 const PARK = { lat: 37.61280, lng: 126.71610, name: '김포 아트빌리지 공영주차장' }
