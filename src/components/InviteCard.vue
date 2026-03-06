@@ -165,7 +165,7 @@ import {
 // ══════════════════════════════════════════
 // ✅ 수정 필요한 곳
 // ══════════════════════════════════════════
-const NAVER_CLIENT_ID = 'YOUR_CLIENT_ID_HERE'
+const NAVER_CLIENT_ID = 'r3v0svm07f'
 
 const REST = { lat: 37.6118, lng: 126.7152, name: '모담 김포 본점',          placeId: '1120584413' }
 const PARK = { lat: 37.6128, lng: 126.7160, name: '김포 아트빌리지 공영주차장', placeId: '1424823651' }
