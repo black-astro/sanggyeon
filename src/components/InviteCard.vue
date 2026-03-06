@@ -183,7 +183,7 @@ import {
 // ══════════════════════════════════════════
 // ✅ 여기만 수정
 // ══════════════════════════════════════════
-const NAVER_CLIENT_ID = 'YOUR_CLIENT_ID_HERE'
+const NAVER_CLIENT_ID = 'r3v0svm07f'
 
 // geocoder가 주소 → 좌표 자동 변환
 const REST_ADDR = '경기도 김포시 모담공원로167번길 105'
