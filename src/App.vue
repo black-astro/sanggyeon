@@ -1,9 +1,9 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import Inv from './components/InviteCard.vue'
 </script>
 
 <template>
-  <HelloWorld/>
+  <Inv/>
 </template>
 
 <style scoped>
