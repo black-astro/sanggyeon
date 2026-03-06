@@ -1,8 +1,5 @@
 <template>
-  <!-- 배경 -->
   <div class="bg-layer" />
-
-  <!-- 꽃잎 캔버스 -->
   <canvas ref="canvasRef" class="petal-canvas" :class="{ off: !petals }" />
 
   <div class="page-wrap">
@@ -55,10 +52,7 @@
 
         <!-- 양가 소개 -->
         <section class="section">
-          <span class="sec-label">
-            <Users :size="13" />
-            양가 소개
-          </span>
+          <span class="sec-label"><Users :size="13" />양가 소개</span>
           <div class="family-grid">
             <div class="family-side">
               <span class="f-badge groom">신랑 측</span>
@@ -67,9 +61,7 @@
               <div class="f-parents">부 김○○<br />모 ○○○</div>
             </div>
             <div class="f-center">
-              <div class="and-circle">
-                <Infinity :size="16" />
-              </div>
+              <div class="and-circle"><Infinity :size="16" /></div>
             </div>
             <div class="family-side">
               <span class="f-badge bride">신부 측</span>
@@ -80,24 +72,14 @@
           </div>
         </section>
 
-        <!-- 구분선 -->
-        <div class="divider">
-          <span />
-          <Dot :size="10" />
-          <span />
-        </div>
+        <div class="divider"><span /><Dot :size="10" /><span /></div>
 
         <!-- 행사 안내 -->
         <section class="section">
-          <span class="sec-label">
-            <CalendarHeart :size="13" />
-            행사 안내
-          </span>
+          <span class="sec-label"><CalendarHeart :size="13" />행사 안내</span>
           <div class="info-list">
             <div class="info-item" v-for="item in infoItems" :key="item.label">
-              <div class="info-icon">
-                <component :is="item.icon" :size="16" />
-              </div>
+              <div class="info-icon"><component :is="item.icon" :size="16" /></div>
               <div>
                 <div class="info-label">{{ item.label }}</div>
                 <div class="info-val">{{ item.value }}</div>
@@ -118,73 +100,58 @@
 
         <!-- 오시는 길 -->
         <section class="section">
-          <span class="sec-label">
-            <MapPinned :size="13" />
-            오시는 길
-          </span>
+          <span class="sec-label"><MapPinned :size="13" />오시는 길</span>
 
-          <!-- 지도 탭 -->
           <div class="map-tabs">
-            <button
-              class="map-tab"
-              :class="{ active: activeMap === 'restaurant' }"
-              @click="switchMap('restaurant')"
-            >
-              <UtensilsCrossed :size="14" />
-              모담 본점
+            <button class="map-tab" :class="{ active: activeMap === 'restaurant' }" @click="switchMap('restaurant')">
+              <UtensilsCrossed :size="14" />모담 본점
             </button>
-            <button
-              class="map-tab"
-              :class="{ active: activeMap === 'parking' }"
-              @click="switchMap('parking')"
-            >
-              <SquareParking :size="14" />
-              공영주차장
+            <button class="map-tab" :class="{ active: activeMap === 'parking' }" @click="switchMap('parking')">
+              <SquareParking :size="14" />공영주차장
             </button>
           </div>
 
-          <!-- 네이버 지도 컨테이너 -->
           <div class="map-frame-wrap">
             <div ref="mapEl" class="naver-map" />
           </div>
 
-          <!-- 길찾기 버튼 -->
-          <div class="btn-map-row">
-            <button class="btn-map" @click="openNaver('restaurant')">
-              <Navigation :size="14" />
-              네이버 길찾기
-            </button>
-            <a class="btn-map" :href="kakaoRestUrl" target="_blank" rel="noopener">
-              <Map :size="14" />
-              카카오 길찾기
-            </a>
+          <!-- 식당 길찾기 -->
+          <div class="nav-group">
+            <div class="nav-group-label"><UtensilsCrossed :size="12" />식당 길찾기</div>
+            <div class="btn-map-row">
+              <button class="btn-map" @click="openNaver('restaurant')">
+                <Navigation :size="14" />네이버
+              </button>
+              <a class="btn-map" :href="kakaoRestUrl" target="_blank" rel="noopener">
+                <Map :size="14" />카카오
+              </a>
+            </div>
           </div>
-          <div class="btn-map-row" style="margin-top: 8px;">
-            <button class="btn-map" @click="openNaver('parking')">
-              <SquareParking :size="14" />
-              주차장 네이버
-            </button>
-            <a class="btn-map" :href="kakaoParkUrl" target="_blank" rel="noopener">
-              <SquareParking :size="14" />
-              주차장 카카오
-            </a>
+
+          <!-- 주차장 길찾기 -->
+          <div class="nav-group">
+            <div class="nav-group-label"><SquareParking :size="12" />주차장 길찾기</div>
+            <div class="btn-map-row">
+              <button class="btn-map" @click="openNaver('parking')">
+                <Navigation :size="14" />네이버
+              </button>
+              <a class="btn-map" :href="kakaoParkUrl" target="_blank" rel="noopener">
+                <Map :size="14" />카카오
+              </a>
+            </div>
           </div>
         </section>
 
         <!-- 꽃잎 토글 -->
         <div class="petal-wrap">
           <button class="petal-btn" :class="{ on: petals }" @click="togglePetals">
-            <Sparkles :size="14" />
-            꽃잎 효과
-            <div class="toggle-track">
-              <div class="toggle-thumb" />
-            </div>
+            <Sparkles :size="14" />꽃잎 효과
+            <div class="toggle-track"><div class="toggle-thumb" /></div>
           </button>
         </div>
 
       </div>
 
-      <!-- ══ 푸터 ══ -->
       <div class="card-footer">
         <Heart class="footer-heart" :size="14" />
         <p class="footer-txt">2025년 봄, 두 가족의 첫 만남</p>
@@ -204,261 +171,170 @@ import {
 } from 'lucide-vue-next'
 
 // ══════════════════════════════════════════
-// ✅ 여기만 수정하면 됨
+// ✅ 여기만 수정
 // ══════════════════════════════════════════
-const NAVER_CLIENT_ID = 'r3v0svm07f'   // ← 발급받은 Client ID 교체
+const NAVER_CLIENT_ID = 'r3v0svm07f'
 
-const REST = { lat: 37.61184, lng: 126.71523, name: '모담 김포 본점' }
-const PARK = { lat: 37.61280, lng: 126.71610, name: '김포 아트빌리지 공영주차장' }
+// geocoder가 주소로 좌표를 자동 조회함
+// 주소가 정확할수록 정확하게 찍힘
+const REST_ADDR = '경기도 김포시 모담공원로167번길 105 1층 모담'
+const PARK_ADDR = '경기 김포시 모담공원로 170'   // 김포 아트빌리지 공영주차장 도로명주소
+
+const REST_NAME = '모담 김포 본점'
+const PARK_NAME = '김포 아트빌리지 주차장'
+
+// 네이버 Place ID (딥링크 웹 fallback용)
+const REST_PLACE_ID = '1120584413'
+const PARK_PLACE_ID = '1424823651'
 // ══════════════════════════════════════════
 
-// ── 상태 ──
 const cardRef   = ref(null)
 const canvasRef = ref(null)
 const mapEl     = ref(null)
 const petals    = ref(true)
 const activeMap = ref('restaurant')
 
-// ── 행사 정보 ──
+// 런타임에 geocoder가 채워줄 좌표 (카카오 딥링크용)
+const coords = {
+  restaurant: { lat: 0, lng: 0 },
+  parking:    { lat: 0, lng: 0 },
+}
+
 const infoItems = [
-  {
-    icon: CalendarDays,
-    label: '일 시',
-    value: '2025년 3월 15일 (토요일)',
-    sub: '오후 12시 30분  ·  도착은 12:00 권장',
-  },
-  {
-    icon: MapPin,
-    label: '장 소',
-    value: '모담 김포 본점 (한정식)',
-    sub: '경기도 김포시 고촌읍 아라육로 지하 105',
-  },
-  {
-    icon: SquareParking,
-    label: '주 차',
-    value: '김포 아트빌리지 공영주차장',
-    sub: '식당에서 도보 약 2분 · 무료 주차 가능',
-  },
-  {
-    icon: Phone,
-    label: '문 의',
-    value: '신랑 측 010-0000-0000',
-    sub: '신부 측 010-0000-0000',
-  },
+  { icon: CalendarDays,  label: '일 시', value: '2025년 3월 15일 (토요일)',   sub: '오후 12시 30분  ·  도착은 12:00 권장' },
+  { icon: MapPin,        label: '장 소', value: '모담 김포 본점 (한정식)',     sub: REST_ADDR },
+  { icon: SquareParking, label: '주 차', value: PARK_NAME,                    sub: '식당에서 도보 약 2분 · 무료 주차 가능' },
+  { icon: Phone,         label: '문 의', value: '신랑 측 010-0000-0000',      sub: '신부 측 010-0000-0000' },
 ]
 
-// ── 길찾기 URL ──
-const kakaoRestUrl = `https://map.kakao.com/link/to/${encodeURIComponent(REST.name)},${REST.lat},${REST.lng}`
-const kakaoParkUrl = `https://map.kakao.com/link/to/${encodeURIComponent(PARK.name)},${PARK.lat},${PARK.lng}`
+// 카카오 URL은 geocoder 완료 후 좌표가 채워진 뒤 사용됨
+const kakaoRestUrl = ref('#')
+const kakaoParkUrl = ref('#')
 
+// 네이버 딥링크
 const openNaver = (target) => {
-  const t = target === 'restaurant' ? REST : PARK
-  const appScheme   = `nmap://route/public?dlat=${t.lat}&dlng=${t.lng}&dname=${encodeURIComponent(t.name)}&appname=kr.sanggyeonrye`
-  const webFallback = `https://map.naver.com/v5/search/${encodeURIComponent(t.name)}`
-  window.location.href = appScheme
-  setTimeout(() => window.open(webFallback, '_blank'), 500)
+  const c   = coords[target]
+  const name = target === 'restaurant' ? REST_NAME : PARK_NAME
+  const pid  = target === 'restaurant' ? REST_PLACE_ID : PARK_PLACE_ID
+
+  if (c.lat && c.lng) {
+    const appScheme = `nmap://route/public?dlat=${c.lat}&dlng=${c.lng}&dname=${encodeURIComponent(name)}&appname=kr.sanggyeonrye`
+    window.location.href = appScheme
+  }
+  setTimeout(() => window.open(`https://map.naver.com/p/entry/place/${pid}`, '_blank'), 500)
 }
 
 // ── 네이버 지도 SDK ──
-let naverMap    = null
-let markers     = {}   // { restaurant: Marker, parking: Marker }
+let naverMap = null
+let markers  = {}
 
 const loadNaverSDK = () =>
   new Promise((resolve) => {
-    // 이미 로드됐으면 바로 resolve
     if (window.naver?.maps) { resolve(); return }
-
     const script = document.createElement('script')
-    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${NAVER_CLIENT_ID}`
+    // submodules=geocoder 반드시 포함
+    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${NAVER_CLIENT_ID}&submodules=geocoder`
     script.onload = resolve
     document.head.appendChild(script)
   })
 
-const initMap = () => {
-  const { naver } = window
-  const center = new naver.maps.LatLng(REST.lat, REST.lng)
+const makeMarker = (latLng, label) => new window.naver.maps.Marker({
+  position: latLng,
+  map: naverMap,
+  icon: {
+    content: `
+      <div style="background:#d4a017;color:#fff;font-size:11px;font-weight:600;
+        padding:5px 10px;border-radius:3px;white-space:nowrap;
+        box-shadow:0 2px 8px rgba(61,43,0,.35);position:relative;">
+        ${label}
+        <div style="position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);
+          border-left:6px solid transparent;border-right:6px solid transparent;
+          border-top:6px solid #d4a017;"></div>
+      </div>`,
+    anchor: new window.naver.maps.Point(40, 34),
+  },
+})
 
+// 주소 → 좌표 변환 (네이버 geocoder 서브모듈)
+const geocodeAddress = (address) =>
+  new Promise((resolve) => {
+    window.naver.maps.Service.geocode({ query: address }, (status, res) => {
+      if (status === window.naver.maps.Service.Status.OK && res?.v2?.addresses?.length > 0) {
+        const { x, y } = res.v2.addresses[0]  // x=경도, y=위도
+        resolve({ lat: parseFloat(y), lng: parseFloat(x) })
+      } else {
+        resolve(null)
+      }
+    })
+  })
+
+const initMap = async () => {
+  const naver = window.naver
+
+  // 지도 초기 생성 (서울 중심으로 임시 — geocode 완료 후 이동)
   naverMap = new naver.maps.Map(mapEl.value, {
-    center,
-    zoom: 16,
+    center: new naver.maps.LatLng(37.611, 126.715),
+    zoom: 17,
     zoomControl: false,
     mapDataControl: false,
     scaleControl: false,
-    logoControlOptions: {
-      position: naver.maps.Position.BOTTOM_LEFT,
-    },
   })
 
-  // 마커 생성 함수
-  const makeMarker = (pos, label) => {
-    const latLng = new naver.maps.LatLng(pos.lat, pos.lng)
-    const marker = new naver.maps.Marker({
-      position: latLng,
-      map: naverMap,
-      title: label,
-      icon: {
-        content: `
-          <div style="
-            background: #d4a017;
-            color: #fff;
-            font-family: 'Noto Serif KR', serif;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 5px 10px;
-            border-radius: 3px;
-            white-space: nowrap;
-            box-shadow: 0 2px 8px rgba(61,43,0,.35);
-            position: relative;
-          ">
-            ${label}
-            <div style="
-              position: absolute;
-              bottom: -6px;
-              left: 50%;
-              transform: translateX(-50%);
-              width: 0; height: 0;
-              border-left: 6px solid transparent;
-              border-right: 6px solid transparent;
-              border-top: 6px solid #d4a017;
-            "></div>
-          </div>
-        `,
-        anchor: new naver.maps.Point(40, 34),
-      },
-    })
-    return marker
+  // 식당 좌표 조회
+  const restCoord = await geocodeAddress(REST_ADDR)
+  if (restCoord) {
+    coords.restaurant = restCoord
+    kakaoRestUrl.value = `https://map.kakao.com/link/to/${encodeURIComponent(REST_NAME)},${restCoord.lat},${restCoord.lng}`
+    const latLng = new naver.maps.LatLng(restCoord.lat, restCoord.lng)
+    naverMap.setCenter(latLng)
+    markers.restaurant = makeMarker(latLng, REST_NAME)
   }
 
-  markers.restaurant = makeMarker(REST, REST.name)
-  markers.parking    = makeMarker(PARK, PARK.name)
-
-  // 초기엔 주차장 마커 숨김
-  markers.parking.setVisible(false)
+  // 주차장 좌표 조회
+  const parkCoord = await geocodeAddress(PARK_ADDR)
+  if (parkCoord) {
+    coords.parking = parkCoord
+    kakaoParkUrl.value = `https://map.kakao.com/link/to/${encodeURIComponent(PARK_NAME)},${parkCoord.lat},${parkCoord.lng}`
+    const latLng = new naver.maps.LatLng(parkCoord.lat, parkCoord.lng)
+    markers.parking = makeMarker(latLng, PARK_NAME)
+    markers.parking.setVisible(false)
+  }
 }
 
 const switchMap = (target) => {
   activeMap.value = target
   if (!naverMap) return
-
-  const t = target === 'restaurant' ? REST : PARK
-  const { naver } = window
-
-  // 지도 중심 이동
-  naverMap.setCenter(new naver.maps.LatLng(t.lat, t.lng))
-
-  // 마커 토글
-  markers.restaurant.setVisible(target === 'restaurant')
-  markers.parking.setVisible(target === 'parking')
+  const c = coords[target]
+  if (c.lat && c.lng) {
+    naverMap.setCenter(new window.naver.maps.LatLng(c.lat, c.lng))
+  }
+  markers.restaurant?.setVisible(target === 'restaurant')
+  markers.parking?.setVisible(target === 'parking')
 }
 
-// ── 꽃잎 파티클 ──
-let ctx      = null
-let petalArr = []
-let animId   = null
-let running  = false
-
-const isMobile   = window.innerWidth <= 480
+// ── 꽃잎 ──
+let ctx = null, petalArr = [], animId = null, running = false
+const isMobile = window.innerWidth <= 480
 const MAX_PETALS = isMobile ? 25 : 50
 const SPAWN_PROB = isMobile ? 0.12 : 0.20
+const COLORS = ['rgba(245,197,24,A)','rgba(232,180,10,A)','rgba(255,215,80,A)','rgba(200,152,10,A)','rgba(255,230,120,A)','rgba(210,170,60,A)']
+const randColor = () => COLORS[Math.floor(Math.random()*COLORS.length)].replace('A',(0.28+Math.random()*0.32).toFixed(2))
+const newPetal  = W => ({x:Math.random()*W,y:-20,rx:2.5+Math.random()*6,rot:Math.random()*Math.PI*2,rotSpd:(Math.random()-.5)*.038,vx:(Math.random()-.5)*.7,vy:.4+Math.random()*.8,swing:Math.random()*Math.PI*2,swingSpd:.015+Math.random()*.018,color:randColor()})
+const drawPetal = p => {ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.color;ctx.beginPath();ctx.ellipse(0,0,p.rx,p.rx*.42,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(255,255,255,.15)';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(0,-p.rx*.35);ctx.lineTo(0,p.rx*.35);ctx.stroke();ctx.restore()}
+const resize    = () => {if(!canvasRef.value)return;canvasRef.value.width=window.innerWidth;canvasRef.value.height=window.innerHeight}
+const loop      = () => {if(!running)return;const W=canvasRef.value.width,H=canvasRef.value.height;ctx.clearRect(0,0,W,H);if(petalArr.length<MAX_PETALS&&Math.random()<SPAWN_PROB)petalArr.push(newPetal(W));petalArr.forEach(p=>{p.swing+=p.swingSpd;p.x+=p.vx+Math.sin(p.swing)*.42;p.y+=p.vy;p.rot+=p.rotSpd;drawPetal(p)});petalArr=petalArr.filter(p=>p.y<H+30&&p.x>-60&&p.x<W+60);animId=requestAnimationFrame(loop)}
+const startPetals = () => {if(running)return;running=true;canvasRef.value?.classList.remove('off');loop()}
+const stopPetals  = () => {running=false;cancelAnimationFrame(animId);canvasRef.value?.classList.add('off');setTimeout(()=>{ctx?.clearRect(0,0,canvasRef.value?.width,canvasRef.value?.height);petalArr=[]},900)}
+const togglePetals = () => {petals.value=!petals.value;petals.value?startPetals():stopPetals()}
 
-const COLORS = [
-  'rgba(245,197,24,A)', 'rgba(232,180,10,A)', 'rgba(255,215,80,A)',
-  'rgba(200,152,10,A)', 'rgba(255,230,120,A)', 'rgba(210,170,60,A)',
-]
-
-const randColor = () => {
-  const c = COLORS[Math.floor(Math.random() * COLORS.length)]
-  return c.replace('A', (0.28 + Math.random() * 0.32).toFixed(2))
-}
-
-const newPetal = (W) => ({
-  x:        Math.random() * W,
-  y:        -20,
-  rx:       2.5 + Math.random() * 6,
-  rot:      Math.random() * Math.PI * 2,
-  rotSpd:   (Math.random() - 0.5) * 0.038,
-  vx:       (Math.random() - 0.5) * 0.7,
-  vy:       0.4 + Math.random() * 0.8,
-  swing:    Math.random() * Math.PI * 2,
-  swingSpd: 0.015 + Math.random() * 0.018,
-  color:    randColor(),
-})
-
-const drawPetal = (p) => {
-  ctx.save()
-  ctx.translate(p.x, p.y)
-  ctx.rotate(p.rot)
-  ctx.fillStyle = p.color
-  ctx.beginPath()
-  ctx.ellipse(0, 0, p.rx, p.rx * 0.42, 0, 0, Math.PI * 2)
-  ctx.fill()
-  ctx.strokeStyle = 'rgba(255,255,255,.15)'
-  ctx.lineWidth = 0.5
-  ctx.beginPath()
-  ctx.moveTo(0, -p.rx * 0.35)
-  ctx.lineTo(0,  p.rx * 0.35)
-  ctx.stroke()
-  ctx.restore()
-}
-
-const resize = () => {
-  if (!canvasRef.value) return
-  canvasRef.value.width  = window.innerWidth
-  canvasRef.value.height = window.innerHeight
-}
-
-const loop = () => {
-  if (!running) return
-  const W = canvasRef.value.width
-  const H = canvasRef.value.height
-  ctx.clearRect(0, 0, W, H)
-  if (petalArr.length < MAX_PETALS && Math.random() < SPAWN_PROB)
-    petalArr.push(newPetal(W))
-  petalArr.forEach((p) => {
-    p.swing += p.swingSpd
-    p.x     += p.vx + Math.sin(p.swing) * 0.42
-    p.y     += p.vy
-    p.rot   += p.rotSpd
-    drawPetal(p)
-  })
-  petalArr = petalArr.filter(p => p.y < H + 30 && p.x > -60 && p.x < W + 60)
-  animId = requestAnimationFrame(loop)
-}
-
-const startPetals = () => {
-  if (running) return
-  running = true
-  canvasRef.value?.classList.remove('off')
-  loop()
-}
-
-const stopPetals = () => {
-  running = false
-  cancelAnimationFrame(animId)
-  canvasRef.value?.classList.add('off')
-  setTimeout(() => {
-    ctx?.clearRect(0, 0, canvasRef.value?.width, canvasRef.value?.height)
-    petalArr = []
-  }, 900)
-}
-
-const togglePetals = () => {
-  petals.value = !petals.value
-  petals.value ? startPetals() : stopPetals()
-}
-
-// ── 마운트 ──
 onMounted(async () => {
-  // 꽃잎
   ctx = canvasRef.value.getContext('2d')
   resize()
   window.addEventListener('resize', resize)
   startPetals()
   setTimeout(() => cardRef.value?.classList.add('revealed'), 80)
-
-  // 네이버 지도
   await loadNaverSDK()
-  initMap()
+  await initMap()
 })
 
 onUnmounted(() => {
@@ -484,455 +360,84 @@ onUnmounted(() => {
   --text-lt:    #8a6c30;
 }
 
-.bg-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 65% 45% at 10% 5%,  rgba(245,197,24,.16) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 65% at 90% 95%, rgba(200,152,10,.12) 0%, transparent 52%),
-    radial-gradient(ellipse 130% 130% at 50% 50%, var(--ivory) 0%, var(--ivory-dark) 100%);
-}
+.bg-layer { position:fixed;inset:0;z-index:0;pointer-events:none; background: radial-gradient(ellipse 65% 45% at 10% 5%, rgba(245,197,24,.16) 0%, transparent 55%), radial-gradient(ellipse 50% 65% at 90% 95%, rgba(200,152,10,.12) 0%, transparent 52%), radial-gradient(ellipse 130% 130% at 50% 50%, var(--ivory) 0%, var(--ivory-dark) 100%); }
 
-.petal-canvas {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 10;
-  transition: opacity .9s ease;
-  &.off { opacity: 0; }
-}
+.petal-canvas { position:fixed;inset:0;pointer-events:none;z-index:10;transition:opacity .9s ease; &.off{opacity:0} }
 
-.page-wrap {
-  position: relative;
-  z-index: 2;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 44px 16px 80px;
-}
+.page-wrap { position:relative;z-index:2;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:44px 16px 80px; }
 
-.invite-card {
-  width: 100%;
-  max-width: 540px;
-  background: rgba(255,252,238,.95);
-  backdrop-filter: blur(18px);
-  border: 1px solid rgba(200,152,10,.28);
-  border-radius: 2px;
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,.7) inset,
-    0 2px 0 0 rgba(200,152,10,.4),
-    0 32px 90px rgba(61,43,0,.13),
-    0 8px 24px rgba(61,43,0,.07);
-  overflow: hidden;
-  opacity: 0;
-  transform: translateY(30px) scale(.975);
-  transition: opacity 1.1s cubic-bezier(.16,1,.3,1), transform 1.1s cubic-bezier(.16,1,.3,1);
-  &.revealed { opacity: 1; transform: translateY(0) scale(1); }
-}
+.invite-card { width:100%;max-width:540px;background:rgba(255,252,238,.95);backdrop-filter:blur(18px);border:1px solid rgba(200,152,10,.28);border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.7) inset,0 2px 0 0 rgba(200,152,10,.4),0 32px 90px rgba(61,43,0,.13),0 8px 24px rgba(61,43,0,.07);overflow:hidden;opacity:0;transform:translateY(30px) scale(.975);transition:opacity 1.1s cubic-bezier(.16,1,.3,1),transform 1.1s cubic-bezier(.16,1,.3,1); &.revealed{opacity:1;transform:translateY(0) scale(1)} }
 
-.hero {
-  position: relative;
-  height: 380px;
-  overflow: hidden;
-  background: linear-gradient(160deg, #3d2b00 0%, #1e1600 100%);
-}
+.hero { position:relative;height:380px;overflow:hidden;background:linear-gradient(160deg,#3d2b00 0%,#1e1600 100%); }
+.hero-pattern { position:absolute;inset:0;opacity:.06;background-image:radial-gradient(circle at 50% 50%,var(--amber) 1px,transparent 1px);background-size:28px 28px; }
+.hero-deco-circle { position:absolute;border-radius:50%;border:1px solid rgba(245,197,24,.12); &.c1{width:320px;height:320px;top:-80px;right:-80px} &.c2{width:200px;height:200px;top:-30px;right:-30px;border-color:rgba(245,197,24,.18)} &.c3{width:420px;height:420px;bottom:-160px;left:-120px} }
+.hero-overlay { position:absolute;inset:0;background:linear-gradient(to bottom,rgba(30,16,0,.15) 0%,rgba(30,16,0,.05) 30%,rgba(30,16,0,.55) 65%,rgba(20,10,0,.92) 100%); }
+.hero-text { position:absolute;bottom:0;inset-inline:0;padding:28px 40px 38px;text-align:center;color:#fff; }
+.hero-eyebrow { font-family:'Playfair Display',serif;font-style:italic;font-size:11.5px;color:var(--gold-soft);letter-spacing:3.5px;text-transform:uppercase;margin-bottom:10px;opacity:.88;animation:fadeUp .9s .35s both; }
+.hero-names { display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:4px;animation:fadeUp .9s .45s both; }
+.hero-name { font-family:'Noto Serif KR',serif;font-size:clamp(24px,6.5vw,34px);font-weight:700;letter-spacing:6px; }
+.hero-heart-sep { color:var(--amber);opacity:.9;flex-shrink:0; }
+.hero-title { font-family:'Playfair Display',serif;font-size:clamp(40px,10vw,58px);font-weight:700;line-height:1.05;letter-spacing:3px;margin-bottom:8px;animation:fadeUp .9s .55s both; }
+.hero-sub { font-size:12px;color:rgba(255,255,255,.5);letter-spacing:2.5px;font-weight:300;margin-bottom:18px;animation:fadeUp .9s .75s both; }
+.hero-ornament { display:flex;align-items:center;justify-content:center;gap:14px;color:var(--amber);opacity:.8;animation:fadeUp .9s .95s both; }
+.orn-line { width:50px;height:1px; &.l{background:linear-gradient(to right,transparent,rgba(245,197,24,.55))} &.r{background:linear-gradient(to left,transparent,rgba(245,197,24,.55))} }
 
-.hero-pattern {
-  position: absolute;
-  inset: 0;
-  opacity: .06;
-  background-image: radial-gradient(circle at 50% 50%, var(--amber) 1px, transparent 1px);
-  background-size: 28px 28px;
-}
+.card-body { padding:44px 40px 38px; }
+.section   { margin-bottom:36px; }
+.sec-label { display:flex;align-items:center;gap:7px;font-family:'Playfair Display',serif;font-style:italic;font-size:11px;letter-spacing:2.8px;color:var(--gold);text-transform:uppercase;margin-bottom:16px; }
 
-.hero-deco-circle {
-  position: absolute;
-  border-radius: 50%;
-  border: 1px solid rgba(245,197,24,.12);
-  &.c1 { width: 320px; height: 320px; top: -80px; right: -80px; }
-  &.c2 { width: 200px; height: 200px; top: -30px; right: -30px; border-color: rgba(245,197,24,.18); }
-  &.c3 { width: 420px; height: 420px; bottom: -160px; left: -120px; }
-}
+.greeting { text-align:center;padding-bottom:36px;border-bottom:1px solid rgba(200,152,10,.18); }
+.greeting-deco { display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:20px;color:var(--amber-deep);opacity:.65; }
+.deco-line { width:38px;height:1px; &.l{background:linear-gradient(to right,transparent,rgba(200,152,10,.4))} &.r{background:linear-gradient(to left,transparent,rgba(200,152,10,.4))} }
+.greeting-main { font-size:17.5px;font-weight:400;color:var(--brown);line-height:2;margin-bottom:16px;word-break:keep-all; em{font-style:normal;color:var(--amber-dark);font-weight:700} }
+.greeting-sub  { font-size:13px;color:var(--text-lt);line-height:2.1;font-weight:300;word-break:keep-all; }
 
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(30,16,0,.15) 0%,
-    rgba(30,16,0,.05) 30%,
-    rgba(30,16,0,.55) 65%,
-    rgba(20,10,0,.92) 100%
-  );
-}
+.family-grid { display:grid;grid-template-columns:1fr 52px 1fr;align-items:center;gap:12px;background:linear-gradient(135deg,rgba(245,197,24,.09),rgba(200,152,10,.05));border:1px solid rgba(200,152,10,.2);border-radius:3px;padding:26px 18px; }
+.family-side { text-align:center; }
+.f-badge { display:inline-block;font-size:9.5px;letter-spacing:1.8px;padding:3px 11px;border-radius:20px;margin-bottom:12px;font-family:'Playfair Display',serif;font-style:italic; &.groom{background:rgba(61,43,0,.08);color:var(--brown);border:1px solid rgba(61,43,0,.18)} &.bride{background:rgba(200,152,10,.1);color:var(--gold);border:1px solid rgba(200,152,10,.22)} }
+.f-name { font-family:'Noto Serif KR',serif;font-size:21px;font-weight:700;color:var(--brown);letter-spacing:5px;margin-bottom:4px; }
+.f-role    { font-size:11.5px;color:var(--text-lt);font-weight:300;margin-bottom:10px; }
+.f-parents { font-size:11.5px;color:var(--text-mid);line-height:1.8;font-weight:300; }
+.f-center  { display:flex;justify-content:center;align-items:center; }
+.and-circle { width:42px;height:42px;background:linear-gradient(135deg,var(--amber) 0%,var(--amber-dark) 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 18px rgba(200,152,10,.35); }
 
-.hero-text {
-  position: absolute;
-  bottom: 0;
-  inset-inline: 0;
-  padding: 28px 40px 38px;
-  text-align: center;
-  color: #fff;
-}
+.divider { display:flex;align-items:center;gap:12px;margin-bottom:32px;color:rgba(200,152,10,.4); span{flex:1;height:1px;background:rgba(200,152,10,.18)} }
 
-.hero-eyebrow {
-  font-family: 'Playfair Display', serif;
-  font-style: italic;
-  font-size: 11.5px;
-  color: var(--gold-soft);
-  letter-spacing: 3.5px;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-  opacity: .88;
-  animation: fadeUp .9s .35s both;
-}
+.info-list { display:flex;flex-direction:column; }
+.info-item { display:flex;align-items:flex-start;gap:14px;padding:16px 0;border-bottom:1px solid rgba(200,152,10,.1); &:last-child{border-bottom:none} }
+.info-icon { width:40px;height:40px;background:linear-gradient(135deg,rgba(245,197,24,.25),rgba(245,197,24,.08));border:1px solid rgba(200,152,10,.22);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--gold); }
+.info-label { font-size:10.5px;color:var(--text-lt);letter-spacing:1.5px;margin-bottom:3px;font-family:'Playfair Display',serif;font-style:italic; }
+.info-val     { font-size:14px;font-weight:600;color:var(--text-main);line-height:1.5; }
+.info-sub-val { font-size:12.5px;color:var(--text-lt);font-weight:300;margin-top:2px;line-height:1.65;word-break:keep-all; }
 
-.hero-names {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 4px;
-  animation: fadeUp .9s .45s both;
-}
+.notice { display:flex;gap:12px;background:rgba(200,152,10,.05);border-left:3px solid var(--amber-deep);border-radius:0 3px 3px 0;padding:16px 18px;margin-bottom:28px;font-size:13px;color:var(--text-mid);line-height:1.9;font-weight:300;word-break:keep-all; .notice-icon{color:var(--amber-deep);flex-shrink:0;margin-top:2px} strong{font-weight:700;color:var(--brown)} }
 
-.hero-name {
-  font-family: 'Noto Serif KR', serif;
-  font-size: clamp(24px, 6.5vw, 34px);
-  font-weight: 700;
-  letter-spacing: 6px;
-}
+.map-tabs { display:flex;gap:8px;margin-bottom:14px; }
+.map-tab { flex:1;padding:10px 8px;border:1.5px solid rgba(200,152,10,.3);border-radius:3px;background:transparent;font-family:'Noto Serif KR',serif;font-size:12px;color:var(--text-lt);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .22s; &.active{background:var(--brown);border-color:var(--brown);color:#fff} }
 
-.hero-heart-sep { color: var(--amber); opacity: .9; flex-shrink: 0; }
+.map-frame-wrap { border-radius:3px;overflow:hidden;border:1px solid rgba(200,152,10,.22);margin-bottom:16px; }
+.naver-map { width:100%;height:230px; }
 
-.hero-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(40px, 10vw, 58px);
-  font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: 3px;
-  margin-bottom: 8px;
-  animation: fadeUp .9s .55s both;
-}
+.nav-group { margin-bottom:12px; &:last-child{margin-bottom:0} }
+.nav-group-label { display:flex;align-items:center;gap:6px;font-family:'Playfair Display',serif;font-style:italic;font-size:10.5px;letter-spacing:1.5px;color:var(--text-lt);margin-bottom:7px; }
+.btn-map-row { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
+.btn-map { padding:12px 8px;background:transparent;color:var(--brown-mid);border:1.5px solid rgba(200,152,10,.32);border-radius:3px;font-family:'Noto Serif KR',serif;font-size:12.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .22s;text-decoration:none; &:hover{background:rgba(200,152,10,.07);border-color:var(--gold)} }
 
-.hero-sub {
-  font-size: 12px;
-  color: rgba(255,255,255,.5);
-  letter-spacing: 2.5px;
-  font-weight: 300;
-  margin-bottom: 18px;
-  animation: fadeUp .9s .75s both;
-}
+.petal-wrap { display:flex;justify-content:center;margin-top:8px; }
+.petal-btn { display:inline-flex;align-items:center;gap:10px;padding:11px 22px;background:transparent;border:1px dashed rgba(200,152,10,.38);border-radius:40px;cursor:pointer;font-family:'Noto Serif KR',serif;font-size:13px;color:var(--text-lt);transition:all .25s;user-select:none; &:hover{background:rgba(200,152,10,.08);color:var(--gold)} &.on{color:var(--brown-mid)} }
+.toggle-track { width:34px;height:19px;background:#d4c090;border-radius:10px;position:relative;transition:background .3s; .petal-btn.on &{background:var(--amber-deep)} }
+.toggle-thumb { position:absolute;width:13px;height:13px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform .3s;box-shadow:0 1px 4px rgba(0,0,0,.2); .petal-btn.on &{transform:translateX(15px)} }
 
-.hero-ornament {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  color: var(--amber);
-  opacity: .8;
-  animation: fadeUp .9s .95s both;
-}
+.card-footer { background:linear-gradient(160deg,var(--brown) 0%,#1e1200 100%);padding:28px 40px;text-align:center; }
+.footer-heart { color:var(--amber);display:block;margin:0 auto 10px;opacity:.85; }
+.footer-txt  { font-family:'Noto Serif KR',serif;font-size:13px;color:rgba(255,255,255,.5);margin-bottom:4px;font-weight:300;letter-spacing:1px; }
+.footer-copy { font-family:'Playfair Display',serif;font-style:italic;font-size:12px;color:rgba(245,197,24,.45);letter-spacing:1.5px; }
 
-.orn-line {
-  width: 50px; height: 1px;
-  &.l { background: linear-gradient(to right, transparent, rgba(245,197,24,.55)); }
-  &.r { background: linear-gradient(to left,  transparent, rgba(245,197,24,.55)); }
-}
-
-.card-body { padding: 44px 40px 38px; }
-.section   { margin-bottom: 36px; }
-
-.sec-label {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-family: 'Playfair Display', serif;
-  font-style: italic;
-  font-size: 11px;
-  letter-spacing: 2.8px;
-  color: var(--gold);
-  text-transform: uppercase;
-  margin-bottom: 16px;
-}
-
-.greeting {
-  text-align: center;
-  padding-bottom: 36px;
-  border-bottom: 1px solid rgba(200,152,10,.18);
-}
-
-.greeting-deco {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 20px;
-  color: var(--amber-deep);
-  opacity: .65;
-}
-
-.deco-line {
-  width: 38px; height: 1px;
-  &.l { background: linear-gradient(to right, transparent, rgba(200,152,10,.4)); }
-  &.r { background: linear-gradient(to left,  transparent, rgba(200,152,10,.4)); }
-}
-
-.greeting-main {
-  font-size: 17.5px;
-  font-weight: 400;
-  color: var(--brown);
-  line-height: 2;
-  margin-bottom: 16px;
-  word-break: keep-all;
-  em { font-style: normal; color: var(--amber-dark); font-weight: 700; }
-}
-
-.greeting-sub {
-  font-size: 13px;
-  color: var(--text-lt);
-  line-height: 2.1;
-  font-weight: 300;
-  word-break: keep-all;
-}
-
-.family-grid {
-  display: grid;
-  grid-template-columns: 1fr 52px 1fr;
-  align-items: center;
-  gap: 12px;
-  background: linear-gradient(135deg, rgba(245,197,24,.09), rgba(200,152,10,.05));
-  border: 1px solid rgba(200,152,10,.2);
-  border-radius: 3px;
-  padding: 26px 18px;
-}
-
-.family-side { text-align: center; }
-
-.f-badge {
-  display: inline-block;
-  font-size: 9.5px;
-  letter-spacing: 1.8px;
-  padding: 3px 11px;
-  border-radius: 20px;
-  margin-bottom: 12px;
-  font-family: 'Playfair Display', serif;
-  font-style: italic;
-  &.groom { background: rgba(61,43,0,.08); color: var(--brown); border: 1px solid rgba(61,43,0,.18); }
-  &.bride { background: rgba(200,152,10,.1); color: var(--gold); border: 1px solid rgba(200,152,10,.22); }
-}
-
-.f-name {
-  font-family: 'Noto Serif KR', serif;
-  font-size: 21px;
-  font-weight: 700;
-  color: var(--brown);
-  letter-spacing: 5px;
-  margin-bottom: 4px;
-}
-
-.f-role    { font-size: 11.5px; color: var(--text-lt); font-weight: 300; margin-bottom: 10px; }
-.f-parents { font-size: 11.5px; color: var(--text-mid); line-height: 1.8; font-weight: 300; }
-.f-center  { display: flex; justify-content: center; align-items: center; }
-
-.and-circle {
-  width: 42px; height: 42px;
-  background: linear-gradient(135deg, var(--amber) 0%, var(--amber-dark) 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  box-shadow: 0 4px 18px rgba(200,152,10,.35);
-}
-
-.divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 32px;
-  color: rgba(200,152,10,.4);
-  span { flex: 1; height: 1px; background: rgba(200,152,10,.18); }
-}
-
-.info-list { display: flex; flex-direction: column; }
-
-.info-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 16px 0;
-  border-bottom: 1px solid rgba(200,152,10,.1);
-  &:last-child { border-bottom: none; }
-}
-
-.info-icon {
-  width: 40px; height: 40px;
-  background: linear-gradient(135deg, rgba(245,197,24,.25), rgba(245,197,24,.08));
-  border: 1px solid rgba(200,152,10,.22);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  color: var(--gold);
-}
-
-.info-label {
-  font-size: 10.5px;
-  color: var(--text-lt);
-  letter-spacing: 1.5px;
-  margin-bottom: 3px;
-  font-family: 'Playfair Display', serif;
-  font-style: italic;
-}
-
-.info-val     { font-size: 14px; font-weight: 600; color: var(--text-main); line-height: 1.5; }
-.info-sub-val { font-size: 12.5px; color: var(--text-lt); font-weight: 300; margin-top: 2px; line-height: 1.65; word-break: keep-all; }
-
-.notice {
-  display: flex;
-  gap: 12px;
-  background: rgba(200,152,10,.05);
-  border-left: 3px solid var(--amber-deep);
-  border-radius: 0 3px 3px 0;
-  padding: 16px 18px;
-  margin-bottom: 28px;
-  font-size: 13px;
-  color: var(--text-mid);
-  line-height: 1.9;
-  font-weight: 300;
-  word-break: keep-all;
-  .notice-icon { color: var(--amber-deep); flex-shrink: 0; margin-top: 2px; }
-  strong { font-weight: 700; color: var(--brown); }
-}
-
-.map-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-
-.map-tab {
-  flex: 1;
-  padding: 10px 8px;
-  border: 1.5px solid rgba(200,152,10,.3);
-  border-radius: 3px;
-  background: transparent;
-  font-family: 'Noto Serif KR', serif;
-  font-size: 12px;
-  color: var(--text-lt);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: all .22s;
-  &.active { background: var(--brown); border-color: var(--brown); color: #fff; }
-}
-
-// iframe 대신 네이버 지도 div
-.map-frame-wrap {
-  border-radius: 3px;
-  overflow: hidden;
-  border: 1px solid rgba(200,152,10,.22);
-  margin-bottom: 12px;
-}
-
-.naver-map {
-  width: 100%;
-  height: 230px;
-}
-
-.btn-map-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.btn-map {
-  padding: 12px 8px;
-  background: transparent;
-  color: var(--brown-mid);
-  border: 1.5px solid rgba(200,152,10,.32);
-  border-radius: 3px;
-  font-family: 'Noto Serif KR', serif;
-  font-size: 12.5px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: all .22s;
-  text-decoration: none;
-  &:hover { background: rgba(200,152,10,.07); border-color: var(--gold); }
-}
-
-.petal-wrap { display: flex; justify-content: center; }
-
-.petal-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 11px 22px;
-  background: transparent;
-  border: 1px dashed rgba(200,152,10,.38);
-  border-radius: 40px;
-  cursor: pointer;
-  font-family: 'Noto Serif KR', serif;
-  font-size: 13px;
-  color: var(--text-lt);
-  transition: all .25s;
-  user-select: none;
-  &:hover { background: rgba(200,152,10,.08); color: var(--gold); }
-  &.on    { color: var(--brown-mid); }
-}
-
-.toggle-track {
-  width: 34px; height: 19px;
-  background: #d4c090;
-  border-radius: 10px;
-  position: relative;
-  transition: background .3s;
-  .petal-btn.on & { background: var(--amber-deep); }
-}
-
-.toggle-thumb {
-  position: absolute;
-  width: 13px; height: 13px;
-  background: #fff;
-  border-radius: 50%;
-  top: 3px; left: 3px;
-  transition: transform .3s;
-  box-shadow: 0 1px 4px rgba(0,0,0,.2);
-  .petal-btn.on & { transform: translateX(15px); }
-}
-
-.card-footer {
-  background: linear-gradient(160deg, var(--brown) 0%, #1e1200 100%);
-  padding: 28px 40px;
-  text-align: center;
-}
-
-.footer-heart { color: var(--amber); display: block; margin: 0 auto 10px; opacity: .85; }
-.footer-txt   { font-family: 'Noto Serif KR', serif; font-size: 13px; color: rgba(255,255,255,.5); margin-bottom: 4px; font-weight: 300; letter-spacing: 1px; }
-.footer-copy  { font-family: 'Playfair Display', serif; font-style: italic; font-size: 12px; color: rgba(245,197,24,.45); letter-spacing: 1.5px; }
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 
 @media (max-width: 480px) {
-  .hero        { height: 320px; }
-  .hero-text   { padding: 20px 20px 28px; }
-  .card-body   { padding: 28px 20px 26px; }
-  .family-grid { grid-template-columns: 1fr 42px 1fr; padding: 18px 10px; }
-  .f-name      { font-size: 17px; letter-spacing: 3px; }
-  .card-footer { padding: 22px 20px; }
-  .page-wrap   { padding: 24px 10px 60px; }
+  .hero{height:320px} .hero-text{padding:20px 20px 28px} .card-body{padding:28px 20px 26px}
+  .family-grid{grid-template-columns:1fr 42px 1fr;padding:18px 10px} .f-name{font-size:17px;letter-spacing:3px}
+  .card-footer{padding:22px 20px} .page-wrap{padding:24px 10px 60px}
 }
 </style>
