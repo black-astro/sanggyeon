@@ -197,7 +197,7 @@ import {
 // ══════════════════════════════════════════
 // ✅ 여기만 수정
 // ══════════════════════════════════════════
-const NAVER_CLIENT_ID = 'YOUR_CLIENT_ID_HERE'
+const NAVER_CLIENT_ID = 'r3v0svm07f'
 
 // geocoder가 주소 → 좌표 자동 변환
 const REST_ADDR = '경기도 김포시 모담공원로167번길 105'
@@ -404,8 +404,8 @@ const switchMap = (target) => {
 // ── 벚꽃 꽃잎 ──
 let ctx = null, petalArr = [], animId = null, running = false
 const isMobile   = window.innerWidth <= 480
-const MAX_PETALS = isMobile ? 14 : 22
-const SPAWN_PROB = isMobile ? 0.06 : 0.10
+const MAX_PETALS = isMobile ? 22 : 22
+const SPAWN_PROB = isMobile ? 0.90 : 0.10
 
 // 벚꽃 색상 팔레트 — 연분홍~흰색 계열
 const PETAL_COLORS = [
