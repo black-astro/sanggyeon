@@ -111,6 +111,17 @@
 
           <div class="map-frame-wrap">
             <div ref="mapEl" class="naver-map" />
+            <!-- 줌 컨트롤 -->
+            <div class="map-ctrl-zoom">
+              <button class="map-ctrl-btn" @click="mapZoom(1)" title="확대"><ZoomIn :size="15" /></button>
+              <div class="map-ctrl-divider" />
+              <button class="map-ctrl-btn" @click="mapZoom(-1)" title="축소"><ZoomOut :size="15" /></button>
+            </div>
+            <!-- 내 위치 + 크게 보기 -->
+            <div class="map-ctrl-side">
+              <button class="map-ctrl-btn" @click="locateMe" title="내 위치"><Locate :size="15" /></button>
+              <button class="map-ctrl-btn" @click="openFullMap" title="크게 보기"><Maximize2 :size="15" /></button>
+            </div>
           </div>
 
           <!-- 식당 길찾기 -->
@@ -166,19 +177,20 @@ import {
   Heart, Leaf, Users, Infinity, Dot,
   CalendarHeart, CalendarDays, MapPin, SquareParking, Phone,
   Info, MapPinned, UtensilsCrossed, Navigation, Map, Sparkles,
+  ZoomIn, ZoomOut, Locate, Maximize2,
 } from 'lucide-vue-next'
 
 // ══════════════════════════════════════════
 // ✅ 여기만 수정
 // ══════════════════════════════════════════
-const NAVER_CLIENT_ID = 'r3v0svm07f'
+const NAVER_CLIENT_ID = 'YOUR_CLIENT_ID_HERE'
 
 // geocoder가 주소 → 좌표 자동 변환
 const REST_ADDR = '경기도 김포시 모담공원로167번길 105'
-const PARK_ADDR = '경기 김포시 운양동 1325-10'
+const PARK_ADDR = '경기도 김포시 모담공원로 170'
 
 const REST_NAME     = '모담 김포 본점'
-const PARK_NAME     = '김포 아트빌리지 주차장'
+const PARK_NAME     = '김포 아트빌리지 공영주차장'
 const REST_PLACE_ID = '1120584413'
 const PARK_PLACE_ID = '1424823651'
 // ══════════════════════════════════════════
@@ -321,6 +333,39 @@ const initMap = async () => {
   }
 }
 
+// 줌 컨트롤
+const mapZoom = (delta) => {
+  if (!naverMap) return
+  naverMap.setZoom(naverMap.getZoom() + delta)
+}
+
+// 내 위치 표시
+let myMarker = null
+const locateMe = () => {
+  if (!navigator.geolocation) return
+  navigator.geolocation.getCurrentPosition(({ coords }) => {
+    if (!naverMap) return
+    const pos = new window.naver.maps.LatLng(coords.latitude, coords.longitude)
+    naverMap.setCenter(pos)
+    naverMap.setZoom(17)
+    if (myMarker) { myMarker.setPosition(pos); return }
+    myMarker = new window.naver.maps.Marker({
+      position: pos,
+      map: naverMap,
+      icon: {
+        content: `<div style="width:14px;height:14px;background:#4a90e2;border:2.5px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(74,144,226,.5)"></div>`,
+        anchor: new window.naver.maps.Point(7, 7),
+      },
+    })
+  }, () => alert('위치 정보를 가져올 수 없습니다.'))
+}
+
+// 크게 보기 — 현재 탭 장소를 네이버 지도 웹에서 열기
+const openFullMap = () => {
+  const pid = activeMap.value === 'restaurant' ? REST_PLACE_ID : PARK_PLACE_ID
+  window.open(`https://map.naver.com/p/entry/place/${pid}`, '_blank')
+}
+
 const switchMap = (target) => {
   activeMap.value = target
   if (!naverMap) return
@@ -435,8 +480,39 @@ onUnmounted(() => {
 .map-tabs { display:flex;gap:8px;margin-bottom:14px; }
 .map-tab { flex:1;padding:10px 8px;border:1.5px solid rgba(200,152,10,.3);border-radius:3px;background:transparent;font-family:'Noto Serif KR',serif;font-size:12px;color:var(--text-lt);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .22s; &.active{background:var(--brown);border-color:var(--brown);color:#fff} }
 
-.map-frame-wrap { border-radius:3px;overflow:hidden;border:1px solid rgba(200,152,10,.22);margin-bottom:16px; }
+.map-frame-wrap { border-radius:3px;overflow:hidden;border:1px solid rgba(200,152,10,.22);margin-bottom:16px;position:relative; }
 .naver-map { width:100%;height:230px; }
+
+// 공통 컨트롤 버튼
+.map-ctrl-btn {
+  width:32px;height:32px;
+  background:rgba(255,252,238,.92);
+  border:1px solid rgba(200,152,10,.25);
+  border-radius:3px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--brown-mid);
+  transition:all .18s;
+  backdrop-filter:blur(4px);
+  &:hover { background:rgba(245,197,24,.15);border-color:var(--amber-deep);color:var(--brown); }
+}
+.map-ctrl-divider { height:1px;background:rgba(200,152,10,.2);margin:2px 4px; }
+
+// 우측 상단: 줌인/아웃
+.map-ctrl-zoom {
+  position:absolute;top:10px;right:10px;
+  display:flex;flex-direction:column;gap:0;
+  box-shadow:0 2px 8px rgba(61,43,0,.12);
+  border-radius:3px;overflow:hidden;
+  .map-ctrl-btn { border-radius:0;border:none;border-bottom:1px solid rgba(200,152,10,.15);
+    &:last-child{border-bottom:none} }
+}
+
+// 좌측 상단: 내 위치 + 크게 보기
+.map-ctrl-side {
+  position:absolute;top:10px;left:10px;
+  display:flex;flex-direction:column;gap:4px;
+  .map-ctrl-btn { box-shadow:0 2px 8px rgba(61,43,0,.12); }
+}
 
 .nav-group { margin-bottom:12px; &:last-child{margin-bottom:0} }
 .nav-group-label { display:flex;align-items:center;gap:6px;font-family:'Playfair Display',serif;font-style:italic;font-size:10.5px;letter-spacing:1.5px;color:var(--text-lt);margin-bottom:7px; }
