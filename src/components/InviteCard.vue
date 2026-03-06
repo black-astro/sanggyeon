@@ -237,21 +237,31 @@ let markers  = {}
 //     script.onload = resolve
 //     document.head.appendChild(script)
 //   })
+
+
+
 const loadNaverSDK = () =>
   new Promise((resolve, reject) => {
-    if (window.naver?.maps?.Service?.geocode) {
+    if (window.naver && window.naver.maps && window.naver.maps.Service && window.naver.maps.Service.geocode) {
       resolve()
       return
     }
 
     const done = () => {
-      if (window.naver?.maps?.Service?.geocode) resolve()
-      else reject(new Error('geocoder 로드 실패'))
+      if (window.naver && window.naver.maps && window.naver.maps.Service && window.naver.maps.Service.geocode) {
+        resolve()
+      } else {
+        reject(new Error('geocoder 로드 실패'))
+      }
     }
 
     const existing = document.querySelector('script[data-naver-maps-sdk="true"]')
     if (existing) {
-      window.naver?.maps?.onJSContentLoaded = done
+      if (window.naver && window.naver.maps) {
+        window.naver.maps.onJSContentLoaded = done
+      } else {
+        reject(new Error('naver maps 객체 없음'))
+      }
       return
     }
 
@@ -262,16 +272,15 @@ const loadNaverSDK = () =>
     document.head.appendChild(script)
 
     script.onload = () => {
-      if (window.naver?.maps?.Service?.geocode) {
+      if (window.naver && window.naver.maps && window.naver.maps.Service && window.naver.maps.Service.geocode) {
         resolve()
-      } else if (window.naver?.maps) {
+      } else if (window.naver && window.naver.maps) {
         window.naver.maps.onJSContentLoaded = done
       } else {
         reject(new Error('naver maps 로드 실패'))
       }
     }
   })
-
   
 const makeMarker = (latLng, label) => new window.naver.maps.Marker({
   position: latLng,
