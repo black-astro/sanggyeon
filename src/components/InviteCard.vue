@@ -320,16 +320,14 @@ const initMap = async () => {
     console.error('식당 geocode 실패', e)
   }
 
-  // 주차장 geocode
-  try {
-    const c = await geocodeAddress(PARK_ADDR)
+  // 주차장 — 좌표 직접 지정 (geocoder 오인식 방지)
+  {
+    const c = { lat: 37.6469362, lng: 126.6972285 }
     coords.parking = c
     kakaoParkUrl.value = `https://map.kakao.com/link/to/${encodeURIComponent(PARK_NAME)},${c.lat},${c.lng}`
     const latLng = new naver.maps.LatLng(c.lat, c.lng)
     markers.parking = makeMarker(latLng, PARK_NAME)
     markers.parking.setVisible(false)
-  } catch (e) {
-    console.error('주차장 geocode 실패', e)
   }
 }
 
