@@ -85,7 +85,7 @@
                   <a v-else>{{ item.value }}</a>
                 </div>
                 <div v-if="item.sub" class="info-sub-val">
-                  <a v-if="item.type === 'tel'" :href="`tel:+82${item.value.replaceAll('-','').slice(1)}`">{{ item.sub }}</a>
+                  <a v-if="item.type === 'tel'" :href="`tel:+82${item.sub.replaceAll('-','').slice(1)}`">{{ item.sub }}</a>
                   <a v-else>{{ item.sub }}</a>
                 </div>
               </div>
@@ -171,13 +171,14 @@
           </div>
         </section>
 
-        <!-- 꽃잎 토글 -->
+        <!-- 꽃잎 토글 
         <div class="petal-wrap">
           <button class="petal-btn" :class="{ on: petals }" @click="togglePetals">
             <Sparkles :size="14" />꽃잎 효과
             <div class="toggle-track"><div class="toggle-thumb" /></div>
           </button>
         </div>
+        -->
 
       </div>
 
@@ -715,6 +716,10 @@ onUnmounted(() => {
 .info-val     { font-size:14px;font-weight:600;color:var(--text-main);line-height:1.5;   text-decoration: none;
   color: inherit;}
 .info-sub-val { font-size:12.5px;color:var(--text-lt);font-weight:300;margin-top:2px;line-height:1.65;word-break:keep-all;   text-decoration: none;
+  color: inherit;}
+
+  .info-val > a, .info-sub-val > a
+  {text-decoration: none;
   color: inherit;}
 
 .notice {
