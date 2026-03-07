@@ -220,7 +220,7 @@ const REST_ADDR = '경기도 김포시 모담공원로167번길 105'
 const PARK_ADDR = '경기도 김포시 모담공원로 170'
 
 const REST_NAME     = '모담 김포 본점'
-const PARK_NAME     = '김포 아트빌리지 공영주차장'
+const PARK_NAME     = '김포 아트빌리지 주차장'
 const REST_PLACE_ID = '1120584413'
 const PARK_PLACE_ID = '1424823651'
 // ══════════════════════════════════════════
@@ -241,7 +241,7 @@ const kakaoRestUrl  = ref('#')
 const kakaoParkUrl  = ref('#')
 
 const infoItems = [
-  { icon: CalendarDays,  label: '일 시', value: '2026년 3월 8일 (일요일)',    sub: '오후 1시 15분  ·  도착은 13:00 권장', type:'text' },
+  { icon: CalendarDays,  label: '일 시', value: '2026년 3월 8일 (일요일)',    sub: '오후 1시 15분  ·  도착은 오후 1시 권장', type:'text' },
   { icon: MapPin,        label: '장 소', value: '모담 김포 본점 (한정식)',      sub: REST_ADDR , type:'text'},
   { icon: SquareParking, label: '주 차', value: PARK_NAME,                     sub: '식당에서 도보 약 2분', type:'text' },
   { icon: Phone,         label: '문 의', value: '신랑 측 010-2052-9118',       sub: '신부 측 010-5095-5127' , type:'tel'},
