@@ -56,7 +56,7 @@
               <span class="f-badge groom">신랑 측</span>
               <div class="f-name">김현우</div>
               <div class="f-role">장남</div>
-              <div class="f-parents">부 김○○<br />모 ○○○</div>
+              <!-- <div class="f-parents">부 김○○<br />모 ○○○</div> -->
             </div>
             <div class="f-center">
               <div class="and-circle"><span class="and-symbol">∞</span></div>
@@ -65,7 +65,7 @@
               <span class="f-badge bride">신부 측</span>
               <div class="f-name">김은지</div>
               <div class="f-role">장녀</div>
-              <div class="f-parents">부 ○○○<br />모 ○○○</div>
+              <!-- <div class="f-parents">부 ○○○<br />모 ○○○</div> -->
             </div>
           </div>
         </section>
@@ -97,7 +97,8 @@
         <div class="notice">
           <Info :size="15" class="notice-icon" />
           <div>
-            <p>부족한 자리이지만 함께해 주신다면 더없는 기쁨이 되겠습니다.</p>
+            <p>부족한 자리이지만 함께해 주신다면</p>
+            <p>더없는 기쁨이 되겠습니다.</p>
             <p>편안한 마음으로 왕림해 주시길 바랍니다.</p>
           </div>
         </div>
@@ -114,7 +115,7 @@
 
             </div>
             <div class="place-card-inner" :class="{ visible: activeMap === 'parking' }">
-              <div class="place-title"><SquareParking :size="13" />김포 아트빌리지 공영주차장</div>
+              <div class="place-title"><SquareParking :size="13" />김포 아트빌리지 주차장</div>
               <div class="place-desc">식당에서 도보 약 2분<br/>경기도 김포시 모담공원로 170</div>
 
             </div>
@@ -122,10 +123,10 @@
 
           <div class="map-tabs">
             <button class="map-tab" :class="{ active: activeMap === 'restaurant' }" @click="switchMap('restaurant')">
-              <UtensilsCrossed :size="14" />모담 본점
+              <UtensilsCrossed :size="14" />모담 본점 위치
             </button>
             <button class="map-tab" :class="{ active: activeMap === 'parking' }" @click="switchMap('parking')">
-              <SquareParking :size="14" />공영주차장
+              <SquareParking :size="14" />주차장 위치
             </button>
           </div>
 
