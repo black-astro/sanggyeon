@@ -80,8 +80,14 @@
               <div class="info-icon"><component :is="item.icon" :size="16" /></div>
               <div>
                 <div class="info-label">{{ item.label }}</div>
-                <div class="info-val">{{ item.value }}</div>
-                <div v-if="item.sub" class="info-sub-val">{{ item.sub }}</div>
+                <div class="info-val">
+                  <span v-if="item.type === 'tel'" :href="`tel:+82${item.value.replaceAll('-','').slice(1)}`">{{ item.value }}</span>
+                  <span v-else>{{ item.value }}</span>
+                </div>
+                <div v-if="item.sub" class="info-sub-val">
+                  <span v-if="item.type === 'tel'" :href="`tel:+82${item.value.replaceAll('-','').slice(1)}`">{{ item.sub }}</span>
+                  <span v-else>{{ item.sub }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -177,7 +183,7 @@
 
       <div class="card-footer">
         <Heart class="footer-heart" :size="14" />
-        <p class="footer-txt">2025년 봄, 두 가족의 첫 만남</p>
+        <p class="footer-txt">2026년 봄, 두 가족의 첫 만남</p>
         <p class="footer-copy">With Love &amp; Gratitude</p>
       </div>
 
@@ -225,10 +231,10 @@ const kakaoRestUrl  = ref('#')
 const kakaoParkUrl  = ref('#')
 
 const infoItems = [
-  { icon: CalendarDays,  label: '일 시', value: '2026년 3월 8일 (일요일)',    sub: '오후 1시 15분  ·  도착은 13:00 권장' },
-  { icon: MapPin,        label: '장 소', value: '모담 김포 본점 (한정식)',      sub: REST_ADDR },
-  { icon: SquareParking, label: '주 차', value: PARK_NAME,                     sub: '식당에서 도보 약 2분' },
-  { icon: Phone,         label: '문 의', value: '신랑 측 010-0000-0000',       sub: '신부 측 010-0000-0000' },
+  { icon: CalendarDays,  label: '일 시', value: '2026년 3월 8일 (일요일)',    sub: '오후 1시 15분  ·  도착은 13:00 권장', type:'text' },
+  { icon: MapPin,        label: '장 소', value: '모담 김포 본점 (한정식)',      sub: REST_ADDR , type:'text'},
+  { icon: SquareParking, label: '주 차', value: PARK_NAME,                     sub: '식당에서 도보 약 2분', type:'text' },
+  { icon: Phone,         label: '문 의', value: '신랑 측 010-2052-9118',       sub: '신부 측 010-5095-5127' , type:'tel'},
 ]
 
 // 네이버 길찾기: 앱 스킴 → 웹 fallback
