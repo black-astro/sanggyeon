@@ -103,7 +103,7 @@
 
         <!-- 공지 -->
         <div class="notice">
-          <Info :size="15" class="notice-icon" />
+         
           <div>
             <p>부족한 자리이지만 함께해 주신다면</p>
             <p>더없는 기쁨이 되겠습니다.</p>
@@ -119,12 +119,16 @@
           <div class="place-card">
             <div class="place-card-inner" :class="{ visible: activeMap === 'restaurant' }">
               <div class="place-title"><UtensilsCrossed :size="13" />모담 김포 본점</div>
-              <div class="place-desc">전통 한정식 전문점 · 프라이빗 룸 운영<br/>경기도 김포시 모담공원로167번길 105</div>
+              <div class="place-desc">전통 한정식 전문점 · 프라이빗 룸 운영
+                <!-- <br/>경기도 김포시 모담공원로167번길 105 -->
+              </div>
 
             </div>
             <div class="place-card-inner" :class="{ visible: activeMap === 'parking' }">
               <div class="place-title"><SquareParking :size="13" />김포 아트빌리지 주차장</div>
-              <div class="place-desc">식당에서 도보 약 2분<br/>경기도 김포시 모담공원로 170</div>
+              <div class="place-desc">식당에서 도보 약 2분
+                <!-- <br/>경기도 김포시 모담공원로 170 -->
+              </div>
 
             </div>
           </div>
@@ -241,8 +245,8 @@ const kakaoRestUrl  = ref('#')
 const kakaoParkUrl  = ref('#')
 
 const infoItems = [
-  { icon: CalendarDays,  label: '일 시', value: '2026년 3월 8일 (일요일)',    sub: '오후 1시 15분  ·  도착은 오후 1시 권장', type:'text' },
-  { icon: MapPin,        label: '장 소', value: '모담 김포 본점 (한정식)',      sub: REST_ADDR , type:'text'},
+  { icon: CalendarDays,  label: '일 시', value: '2026년 3월 8일 (일)',    sub: '오후 1시 15분', type:'text' },
+  { icon: MapPin,        label: '장 소', value: '모담 김포 본점',      sub: REST_ADDR , type:'text'},
   { icon: SquareParking, label: '주 차', value: PARK_NAME,                     sub: '식당에서 도보 약 2분', type:'text' },
   { icon: Phone,         label: '문 의', value: '신랑 측 010-2052-9118',       sub: '신부 측 010-5095-5127' , type:'tel'},
 ]
@@ -690,7 +694,8 @@ onUnmounted(() => {
 .family-side { text-align:center; }
 .f-badge {
   display:inline-block;font-size:9.5px;letter-spacing:1.8px;padding:3px 11px;border-radius:20px;
-  margin-bottom:12px;font-family:'Playfair Display',serif;font-style:italic;
+  margin-bottom:12px;
+  // font-family:'Playfair Display',serif;font-style:italic;
   &.groom{background:rgba(58,26,40,.07);color:var(--text-main);border:1px solid rgba(58,26,40,.15)}
   &.bride{background:rgba(212,112,138,.12);color:var(--rose);border:1px solid rgba(212,112,138,.25)}
 }
@@ -850,8 +855,39 @@ onUnmounted(() => {
   justify-content: center; /* family-side가 text-align:center면 이걸로 */
 }
 
+// .f-relation {
+//   min-width: 30px;
+//   text-align: right;
+//   color: #999;
+//   font-size: 12px;
+// }
+
 .f-relation {
-  min-width: 30px;
+  min-width: 36px; /* 30px → 36px */
+  text-align: right;
+  color: #999;
+  font-size: 12px;
+}
+
+.f-pname {
+  text-align: left;
+  font-size: 12px;
+}
+
+
+
+.f-parents {
+  display: inline-grid;
+  grid-template-columns: auto auto; /* 기존 flex 대신 */
+  gap: 0 8px;
+  text-align: left;
+}
+
+.f-parent-row {
+  display: contents; /* grid 자식으로 풀어줌 */
+}
+
+.f-relation {
   text-align: right;
   color: #999;
   font-size: 12px;
