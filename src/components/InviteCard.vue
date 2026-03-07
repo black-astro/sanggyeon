@@ -56,7 +56,11 @@
               <span class="f-badge groom">신랑 측</span>
               <div class="f-name">김현우</div>
               <div class="f-role">장남</div>
-              <div class="f-parents">이모부 박돈영<br />이모 김숙정</div>
+            
+        <div class="f-parents">
+  <div class="f-parent-row"><span class="f-relation">이모부</span><span class="f-pname">박돈영</span></div>
+  <div class="f-parent-row"><span class="f-relation">이모</span><span class="f-pname">김숙정</span></div>
+</div>
             </div>
             <div class="f-center">
               <div class="and-circle"><span class="and-symbol">∞</span></div>
@@ -65,10 +69,14 @@
               <span class="f-badge bride">신부 측</span>
               <div class="f-name">김은지</div>
               <div class="f-role">장녀</div>
-              <div class="f-parents">부 김용철<br />모 원혜숙</div> 
+             <div class="f-parents">
+  <div class="f-parent-row"><span class="f-relation">부</span><span class="f-pname">김용철</span></div>
+  <div class="f-parent-row"><span class="f-relation">모</span><span class="f-pname">원혜숙</span></div>
+</div>
             </div>
           </div>
         </section>
+
 
         <div class="divider"><span /><Dot :size="10" /><span /></div>
 
@@ -834,5 +842,23 @@ onUnmounted(() => {
   .hero{height:320px} .hero-text{padding:20px 20px 28px} .card-body{padding:28px 20px 26px}
   .family-grid{grid-template-columns:1fr 42px 1fr;padding:18px 10px} .f-name{font-size:17px;letter-spacing:3px}
   .card-footer{padding:22px 20px} .page-wrap{padding:24px 10px 60px}
+}
+
+.f-parent-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center; /* family-side가 text-align:center면 이걸로 */
+}
+
+.f-relation {
+  min-width: 30px;
+  text-align: right;
+  color: #999;
+  font-size: 12px;
+}
+
+.f-pname {
+  text-align: left;
+  font-size: 12px;
 }
 </style>
