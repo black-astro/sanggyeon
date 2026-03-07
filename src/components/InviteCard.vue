@@ -81,12 +81,12 @@
               <div>
                 <div class="info-label">{{ item.label }}</div>
                 <div class="info-val">
-                  <span v-if="item.type === 'tel'" :href="`tel:+82${item.value.replaceAll('-','').slice(1)}`">{{ item.value }}</span>
-                  <span v-else>{{ item.value }}</span>
+                  <a v-if="item.type === 'tel'" :href="`tel:+82${item.value.replaceAll('-','').slice(1)}`">{{ item.value }}</a>
+                  <a v-else>{{ item.value }}</a>
                 </div>
                 <div v-if="item.sub" class="info-sub-val">
-                  <span v-if="item.type === 'tel'" :href="`tel:+82${item.value.replaceAll('-','').slice(1)}`">{{ item.sub }}</span>
-                  <span v-else>{{ item.sub }}</span>
+                  <a v-if="item.type === 'tel'" :href="`tel:+82${item.value.replaceAll('-','').slice(1)}`">{{ item.sub }}</a>
+                  <a v-else>{{ item.sub }}</a>
                 </div>
               </div>
             </div>
@@ -712,8 +712,10 @@ onUnmounted(() => {
   display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--pink-deep);
 }
 .info-label { font-size:10.5px;color:var(--text-lt);letter-spacing:1.5px;margin-bottom:3px;font-family:'Playfair Display',serif;font-style:italic; }
-.info-val     { font-size:14px;font-weight:600;color:var(--text-main);line-height:1.5; }
-.info-sub-val { font-size:12.5px;color:var(--text-lt);font-weight:300;margin-top:2px;line-height:1.65;word-break:keep-all; }
+.info-val     { font-size:14px;font-weight:600;color:var(--text-main);line-height:1.5;   text-decoration: none;
+  color: inherit;}
+.info-sub-val { font-size:12.5px;color:var(--text-lt);font-weight:300;margin-top:2px;line-height:1.65;word-break:keep-all;   text-decoration: none;
+  color: inherit;}
 
 .notice {
   display:flex;gap:12px;
