@@ -56,7 +56,7 @@
               <span class="f-badge groom">신랑 측</span>
               <div class="f-name">김현우</div>
               <div class="f-role">장남</div>
-              <!-- <div class="f-parents">부 김○○<br />모 ○○○</div> -->
+              <div class="f-parents">이모부 박돈영<br />이모 김숙정</div>
             </div>
             <div class="f-center">
               <div class="and-circle"><span class="and-symbol">∞</span></div>
@@ -65,7 +65,7 @@
               <span class="f-badge bride">신부 측</span>
               <div class="f-name">김은지</div>
               <div class="f-role">장녀</div>
-              <!-- <div class="f-parents">부 ○○○<br />모 ○○○</div> -->
+              <div class="f-parents">부 김용철<br />모 원혜숙</div> 
             </div>
           </div>
         </section>
