@@ -5,6 +5,10 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>sang</title>
+    <script>
+      // ?page=wedding 으로 들어오면 청첩장으로 이동
+      if (new URLSearchParams(location.search).get('page') === 'wedding') location.replace('./wedding/')
+    </script>
   </head>
   <body>
     <div id="app"></div>
