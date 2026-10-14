@@ -207,19 +207,73 @@ section.tint { background: var(--bg); }
 .btn-more svg { transition: transform .3s; }
 .btn-more.open svg { transform: rotate(180deg); }
 
-/* 라이트박스 */
-.lb { position: fixed; inset: 0; z-index: 100; background: rgba(18,16,14,.96); display: none; touch-action: pan-y; }
+/* 라이트박스: 흐린 배경 + 사진 + 아래 썸네일 줄 */
+html.lb-lock, html.lb-lock body { overflow: hidden; }
+.lb {
+  position: fixed; inset: 0; z-index: 100; display: none; color: #fff; background: #0b0908;
+  opacity: 0; transition: opacity .35s ease; touch-action: none; --pull: 0;
+}
 .lb.open { display: block; }
-.lb-track { position: absolute; inset: 0; display: flex; transition: transform .35s cubic-bezier(.2,.8,.2,1); }
-.lb-slide { flex: 0 0 100%; display: grid; place-items: center; padding: 64px 12px calc(64px + var(--safe-b)); }
-.lb-slide img { max-width: 100%; max-height: 100%; object-fit: contain; user-select: none; -webkit-user-drag: none; }
-.lb-top { position: absolute; top: 0; left: 0; right: 0; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px 0 20px; color: #fff; z-index: 2; }
-.lb-count { font-family: var(--latin); letter-spacing: .15em; font-size: 15px; opacity: .85; }
-.lb-btn { width: 48px; height: 48px; display: grid; place-items: center; background: none; border: 0; color: #fff; opacity: .85; }
-.lb-btn:hover { opacity: 1; }
-.lb-nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; display: none; }
-.lb-nav.prev { left: 12px; } .lb-nav.next { right: 12px; }
+.lb.show { opacity: calc(1 - var(--pull) * .6); }
+.lb-bg {
+  position: absolute; inset: -60px; background: center / cover no-repeat;
+  filter: blur(40px) saturate(.85) brightness(.42); transform: scale(1.15); transition: background-image .4s;
+}
+.lb-bg::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(11,9,8,.15), rgba(11,9,8,.75)); }
+.lb-track {
+  position: absolute; inset: 0; display: flex;
+  transform: translate3d(calc(var(--x, 0%) + var(--dx, 0px)), calc(var(--pull) * 160px), 0) scale(calc(1 - var(--pull) * .12));
+  transition: transform .45s cubic-bezier(.2,.8,.2,1);
+}
+.lb.dragging .lb-track { transition: none; }
+/* 높이를 확정해 둬야 사진의 max-height:100%가 PC에서도 먹음 */
+.lb-slide { flex: 0 0 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 70px 16px calc(104px + var(--safe-b)); }
+.lb-slide img {
+  max-width: 100%; max-height: 100%; min-height: 0; object-fit: contain; border-radius: 4px; user-select: none; -webkit-user-drag: none;
+  box-shadow: 0 24px 70px rgba(0,0,0,.55); opacity: 0; transform: scale(.94);
+  transition: opacity .45s ease, transform .55s cubic-bezier(.16,1,.3,1);
+}
+.lb-slide.on img.loaded { opacity: 1; transform: scale(1); }
+.lb-slide:not(.on) img.loaded { opacity: .35; }
+/* 상단: 숫자 + 진행 막대 + 닫기 */
+.lb-top {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 3; height: calc(64px + env(safe-area-inset-top, 0px));
+  padding: env(safe-area-inset-top, 0px) 10px 0 22px; display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(180deg, rgba(0,0,0,.35), transparent); transition: opacity .3s, transform .3s;
+}
+.lb-count { font-family: var(--latin); font-size: 15px; letter-spacing: .18em; color: rgba(255,255,255,.55); }
+.lb-count b { font-weight: 500; font-size: 22px; color: #f3dcb6; letter-spacing: .06em; margin-right: 4px; }
+.lb-bar { position: absolute; left: 22px; right: 22px; bottom: 6px; height: 1px; background: rgba(255,255,255,.12); }
+.lb-bar i { display: block; height: 100%; width: 0; background: #f3dcb6; transition: width .45s cubic-bezier(.2,.8,.2,1); }
+.lb-btn {
+  width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; color: #fff;
+  border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.08);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: background .2s, transform .2s;
+}
+.lb-btn:hover { background: rgba(255,255,255,.18); }
+.lb-btn:active { transform: scale(.94); }
+.lb-nav { position: absolute; top: 50%; z-index: 3; width: 52px; height: 52px; margin-top: -26px; display: none; transition: opacity .3s; }
+.lb-nav.prev { left: 20px; } .lb-nav.next { right: 20px; }
 @media (hover: hover) and (min-width: 768px) { .lb-nav { display: grid; } }
+/* 하단 썸네일 줄 */
+.lb-thumbs {
+  position: absolute; left: 0; right: 0; bottom: calc(16px + var(--safe-b)); z-index: 3;
+  display: flex; gap: 6px; padding: 6px 16px; overflow-x: auto; scrollbar-width: none; scroll-behavior: smooth;
+  justify-content: safe center; transition: opacity .3s, transform .3s;
+}
+.lb-thumbs::-webkit-scrollbar { display: none; }
+.lb-thumbs button {
+  flex: 0 0 auto; width: 46px; height: 60px; padding: 0; border: 0; border-radius: 4px; overflow: hidden;
+  background: #222; opacity: .4; transition: opacity .25s, transform .25s, box-shadow .25s;
+}
+.lb-thumbs button img { width: 100%; height: 100%; object-fit: cover; }
+.lb-thumbs button:hover { opacity: .75; }
+.lb-thumbs button.on { opacity: 1; transform: translateY(-3px); box-shadow: 0 0 0 1.5px #f3dcb6, 0 6px 16px rgba(0,0,0,.4); }
+/* 사진을 탭하면 위아래 UI 숨김 */
+.lb.ui-off .lb-top { opacity: 0; transform: translateY(-10px); pointer-events: none; }
+.lb.ui-off .lb-thumbs { opacity: 0; transform: translateY(10px); pointer-events: none; }
+.lb.ui-off .lb-nav { opacity: 0; pointer-events: none; }
+@media (max-height: 520px) { .lb-thumbs { display: none; } .lb-slide { padding-bottom: calc(16px + var(--safe-b)); } }
 
 /* 오시는 길 */
 .venue-name { font-family: var(--serif); font-size: clamp(18px, 5vw, 20px); }
@@ -279,7 +333,9 @@ section.tint { background: var(--bg); }
 /* ───────── 피날레: 스크롤하면 점점 어두워지며 마무리 사진 ─────────
    JS가 --p(0→1 진행도), --ph(사진), --gl(빛) 값을 넣어줌 */
 .finale { position: relative; padding: 0; color: #f6efe6; background: #0d0a08; --p: 0; --ph: 0; --gl: 0; }
-.finale-fade { height: clamp(260px, 55vh, 520px); background: linear-gradient(180deg, var(--bg) 0%, #cfc6bb 22%, #6d6259 52%, #241d18 80%, #0d0a08 100%); }
+/* 아이보리 → 어둠: 완만한 곡선으로 길게, 노이즈를 살짝 얹어 줄무늬(밴딩) 방지 */
+.finale-fade { position: relative; height: clamp(380px, 85vh, 820px); background: linear-gradient(180deg, #f7f4ef 0%, #f6f3ee 6.2%, #f3f0eb 12.5%, #ede9e3 18.8%, #e1dcd6 25%, #d1cac3 31.2%, #bcb4ac 37.5%, #a39a92 43.8%, #887f78 50%, #6d645d 56.2%, #524a45 62.5%, #3b3430 68.8%, #27221f 75%, #191512 81.2%, #110e0c 87.5%, #0e0b09 93.8%, #0d0a08 100%); }
+.finale-fade::after { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E"); opacity: .06; mix-blend-mode: overlay; pointer-events: none; }
 /* 빛이 위쪽 어둠까지 번지도록 세로는 열고 가로만 자름 */
 .finale-stage { position: relative; overflow-x: clip; overflow-y: visible; padding-bottom: calc(clamp(56px, 14vw, 90px) + var(--safe-b)); }
 .finale-photo {
@@ -406,6 +462,7 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
   .reveal { opacity: 1; transform: none; transition: none; }
   .petals { display: none; }
   .intro-half { transition: none; }
+  .lb, .lb-track, .lb-slide img { transition: none !important; }
   html.opened .hero-photo img, html.opened .side img, .cal-grid .day-on::before, .intro * { animation: none !important; }
   html { scroll-behavior: auto; }
 }
@@ -602,13 +659,16 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
 
 <!-- 라이트박스 -->
 <div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="사진 크게 보기">
+  <div class="lb-bg" id="lbBg"></div>
+  <div class="lb-track" id="lbTrack"></div>
   <div class="lb-top">
     <span class="lb-count" id="lbCount"></span>
-    <button class="lb-btn" id="lbClose" aria-label="닫기"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <button class="lb-btn" id="lbClose" aria-label="닫기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <div class="lb-bar"><i id="lbBar"></i></div>
   </div>
-  <div class="lb-track" id="lbTrack"></div>
-  <button class="lb-btn lb-nav prev" id="lbPrev" aria-label="이전 사진"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="m15 18-6-6 6-6"/></svg></button>
-  <button class="lb-btn lb-nav next" id="lbNext" aria-label="다음 사진"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="m9 18 6-6-6-6"/></svg></button>
+  <button class="lb-btn lb-nav prev" id="lbPrev" aria-label="이전 사진"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m15 18-6-6 6-6"/></svg></button>
+  <button class="lb-btn lb-nav next" id="lbNext" aria-label="다음 사진"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m9 18 6-6-6-6"/></svg></button>
+  <div class="lb-thumbs" id="lbThumbs"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -795,26 +855,46 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
     if (!open) gal.scrollIntoView({ block: 'center' });
   });
 
-  /* 라이트박스: 스와이프 / 키보드 / 버튼 */
-  const lb = $('#lb'), track = $('#lbTrack');
-  PHOTOS.forEach(p => track.insertAdjacentHTML('beforeend', `<div class="lb-slide"><img data-src="img/${p}.webp" alt="" /></div>`));
-  const slides = [...track.children];
+  /* 라이트박스: 좌우 스와이프로 넘기기, 아래로 쓸어 닫기, 썸네일 / 키보드 / 버튼 */
+  const lb = $('#lb'), track = $('#lbTrack'), thumbs = $('#lbThumbs'), lbBg = $('#lbBg');
+  const N = PHOTOS.length, pad = (n) => String(n).padStart(2, '0');
+  PHOTOS.forEach((p, i) => {
+    track.insertAdjacentHTML('beforeend', `<div class="lb-slide"><img data-src="img/${p}.webp" alt="사진 ${i + 1}" draggable="false" /></div>`);
+    thumbs.insertAdjacentHTML('beforeend', `<button type="button" data-i="${i}" aria-label="사진 ${i + 1}"><img src="img/thumb/${p}.webp" alt="" loading="lazy" /></button>`);
+  });
+  const slides = [...track.children], tbtns = [...thumbs.children];
   let cur = 0, lastFocus = null;
-  const load = (i) => { const im = slides[i]?.querySelector('img'); if (im && !im.src) im.src = im.dataset.src; };
+  const load = (i) => {
+    const im = slides[i].querySelector('img');
+    if (!im.src) { im.onload = () => im.classList.add('loaded'); im.src = im.dataset.src; }
+  };
   const go = (i, anim = true) => {
-    cur = (i + PHOTOS.length) % PHOTOS.length;
-    track.style.transition = anim ? '' : 'none';
-    track.style.transform = `translateX(${-cur * 100}%)`;
-    $('#lbCount').textContent = `${cur + 1} / ${PHOTOS.length}`;
-    [cur - 1, cur, cur + 1].forEach(n => load((n + PHOTOS.length) % PHOTOS.length));
+    cur = (i + N) % N;
+    lb.classList.toggle('dragging', !anim);
+    lb.style.setProperty('--x', `${-cur * 100}%`); lb.style.setProperty('--dx', '0px');
+    slides.forEach((sl, k) => sl.classList.toggle('on', k === cur));
+    tbtns.forEach((b, k) => b.classList.toggle('on', k === cur));
+    $('#lbCount').innerHTML = `<b>${pad(cur + 1)}</b>/ ${pad(N)}`;
+    $('#lbBar').style.width = `${((cur + 1) / N) * 100}%`;
+    lbBg.style.backgroundImage = `url(img/thumb/${PHOTOS[cur]}.webp)`;
+    [cur, cur + 1, cur - 1].forEach(n => load((n + N) % N));
+    const t = tbtns[cur]; thumbs.scrollTo({ left: t.offsetLeft - thumbs.clientWidth / 2 + t.offsetWidth / 2 });
+    if (!anim) requestAnimationFrame(() => lb.classList.remove('dragging'));
   };
   const openLb = (i) => {
     lastFocus = document.activeElement;
-    lb.classList.add('open'); document.body.style.overflow = 'hidden';
-    go(i, false); $('#lbClose').focus();
+    document.documentElement.classList.add('lb-lock');
+    lb.classList.remove('ui-off'); lb.style.setProperty('--pull', 0);
+    lb.classList.add('open'); go(i, false);
+    requestAnimationFrame(() => requestAnimationFrame(() => lb.classList.add('show')));
+    $('#lbClose').focus({ preventScroll: true });
   };
-  const closeLb = () => { lb.classList.remove('open'); document.body.style.overflow = ''; lastFocus?.focus(); };
+  const closeLb = () => {
+    lb.classList.remove('show');
+    setTimeout(() => { lb.classList.remove('open'); lb.style.setProperty('--pull', 0); document.documentElement.classList.remove('lb-lock'); lastFocus?.focus({ preventScroll: true }); }, 320);
+  };
   gal.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) openLb(+b.dataset.i); });
+  thumbs.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) go(+b.dataset.i); });
   $('#lbClose').onclick = closeLb; $('#lbPrev').onclick = () => go(cur - 1); $('#lbNext').onclick = () => go(cur + 1);
   document.addEventListener('keydown', (e) => {
     if (!lb.classList.contains('open')) return;
@@ -822,18 +902,38 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
     if (e.key === 'ArrowLeft') go(cur - 1);
     if (e.key === 'ArrowRight') go(cur + 1);
   });
-  let sx = 0, sy = 0, dx = 0, dragging = false;
-  lb.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; dx = 0; dragging = true; track.style.transition = 'none'; }, { passive: true });
-  lb.addEventListener('touchmove', (e) => {
-    if (!dragging) return;
-    dx = e.touches[0].clientX - sx;
-    if (Math.abs(dx) > Math.abs(e.touches[0].clientY - sy)) track.style.transform = `translateX(calc(${-cur * 100}% + ${dx}px))`;
+  /* 터치: 방향을 먼저 정한 뒤 좌우면 넘기기, 아래면 닫기 */
+  let sx = 0, sy = 0, dx = 0, dy = 0, axis = null, moved = false;
+  track.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 1) return;
+    sx = e.touches[0].clientX; sy = e.touches[0].clientY; dx = dy = 0; axis = null; moved = false;
   }, { passive: true });
-  lb.addEventListener('touchend', () => {
-    dragging = false; track.style.transition = '';
-    if (Math.abs(dx) > 50) go(cur + (dx < 0 ? 1 : -1)); else go(cur);
+  track.addEventListener('touchmove', (e) => {
+    if (e.touches.length > 1) return;
+    dx = e.touches[0].clientX - sx; dy = e.touches[0].clientY - sy;
+    if (!axis && Math.hypot(dx, dy) > 8) axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+    if (!axis) return;
+    moved = true; lb.classList.add('dragging');
+    if (axis === 'x') {
+      const edge = (cur === 0 && dx > 0) || (cur === N - 1 && dx < 0);
+      lb.style.setProperty('--dx', `${edge ? dx * .35 : dx}px`);
+    } else if (dy > 0) {
+      lb.style.setProperty('--pull', Math.min(dy / 400, 1).toFixed(3));
+    }
+  }, { passive: true });
+  track.addEventListener('touchend', () => {
+    lb.classList.remove('dragging');
+    if (axis === 'x' && Math.abs(dx) > 50) go(cur + (dx < 0 ? 1 : -1));
+    else if (axis === 'y' && dy > 110) closeLb();
+    else { lb.style.setProperty('--dx', '0px'); lb.style.setProperty('--pull', 0); }
+    setTimeout(() => { moved = false; }, 50);
   });
-  lb.addEventListener('click', (e) => { if (e.target.classList.contains('lb-slide')) closeLb(); });
+  /* 사진 탭: 위아래 UI 숨기기/보이기, 사진 바깥 탭: 닫기 */
+  track.addEventListener('click', (e) => {
+    if (moved) return;
+    if (e.target.tagName === 'IMG') lb.classList.toggle('ui-off');
+    else closeLb();
+  });
 
   /* 배경음악: 브라우저 정책상 자동재생 불가 → '청첩장 열기'를 누를 때 재생 */
   const audio = $('#bgm'), bgmBtn = $('#bgmBtn'), tip = $('#bgmTip');
@@ -846,11 +946,17 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
     if (audio.paused) { userMuted = false; play(); } else { userMuted = true; audio.pause(); setUI(false); }
   });
   setTimeout(() => tip.classList.add('hide'), 5000);
-  /* 탭을 벗어나면 멈추고, 돌아오면 이어서 */
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) { if (!audio.paused) { audio.pause(); audio.dataset.resume = '1'; } }
-    else if (audio.dataset.resume) { delete audio.dataset.resume; play(); }
-  });
+  /* 화면이 꺼지거나 다른 앱으로 가도 계속 재생. 잠금화면 컨트롤에서 멈추면 버튼도 맞춰 바뀜 */
+  audio.addEventListener('play', () => setUI(true));
+  audio.addEventListener('pause', () => setUI(false));
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: '김현우 ♥ 김은지 결혼합니다', artist: '2026. 10. 24. 티웨딩 천안',
+      artwork: [{ src: 'og.jpg', sizes: '800x800', type: 'image/jpeg' }],
+    });
+    navigator.mediaSession.setActionHandler('play', () => { userMuted = false; play(); });
+    navigator.mediaSession.setActionHandler('pause', () => { userMuted = true; audio.pause(); });
+  }
 
 
   /* 오프닝 커튼: 누르면 양쪽으로 열리고 음악 시작 */
