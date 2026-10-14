@@ -309,19 +309,31 @@ html.lb-lock, html.lb-lock body { overflow: hidden; }
 .venue-pin .dot svg { transform: rotate(45deg); }
 .venue-pin .pulse { position: absolute; left: 50%; bottom: -8px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: rgba(138,111,87,.35); animation: pulse 2s ease-out infinite; }
 @keyframes pulse { 0% { transform: scale(.6); opacity: 1 } 100% { transform: scale(3); opacity: 0 } }
-.map-zoom { position: absolute; top: 12px; right: 12px; z-index: 500; display: flex; flex-direction: column; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,.1); }
+.map-zoom { position: absolute; top: 12px; right: 12px; z-index: 600; display: flex; flex-direction: column; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,.1); }
 .map-zoom button, .map-reset {
   width: 38px; height: 38px; display: grid; place-items: center; border: 0;
   background: rgba(255,253,249,.94); color: var(--ink-2);
 }
 .map-zoom button + button { border-top: 1px solid var(--line); }
-.map-reset { position: absolute; top: 12px; left: 12px; z-index: 500; border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,.1); }
+.map-reset { position: absolute; top: 12px; left: 12px; z-index: 600; border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,.1); }
 .map-zoom button:hover, .map-reset:hover { background: var(--accent-soft); color: var(--ink); }
-.map-hint {
-  position: absolute; inset: 0; z-index: 600; display: grid; place-items: center; pointer-events: none;
-  background: rgba(30,26,22,.45); color: #fff; font-size: 13.5px; opacity: 0; transition: opacity .3s;
+/* 폰: 평소엔 투명 덮개가 지도를 가려 페이지 스크롤이 그대로 됨. 탭하면 덮개가 걷히고 지도 조작 가능 */
+.map-shield {
+  position: absolute; inset: 0; z-index: 550; display: none; align-items: flex-end; justify-content: center;
+  padding: 0 0 14px; border: 0; background: transparent; touch-action: pan-y;
 }
-.map-hint.show { opacity: 1; }
+.map-shield span {
+  font-size: 12px; color: #fff; background: rgba(47,42,38,.72); padding: 7px 14px; border-radius: 999px;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); box-shadow: 0 4px 12px rgba(0,0,0,.15);
+}
+.map-lock {
+  position: absolute; left: 50%; bottom: 14px; z-index: 550; transform: translateX(-50%);
+  display: none; align-items: center; gap: 5px; height: 32px; padding: 0 14px; border: 0; border-radius: 999px;
+  font-size: 12px; color: var(--ink-2); background: rgba(255,253,249,.94); box-shadow: 0 4px 14px rgba(0,0,0,.12);
+}
+.map-box.touch .map-shield { display: flex; }
+.map-box.touch.active .map-shield { display: none; }
+.map-box.touch.active .map-lock { display: inline-flex; }
 /* 지도 아래 '계속 내려보세요' 표시: 가는 선을 따라 점이 천천히 내려감 */
 .scroll-cue {
   display: flex; flex-direction: column; align-items: center; gap: 8px; margin: clamp(48px, 12vw, 72px) auto 0;
@@ -634,7 +646,8 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
             <button type="button" id="zoomOut" aria-label="지도 축소"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/></svg></button>
           </div>
           <button type="button" class="map-reset" id="mapReset" aria-label="예식장 위치로 돌아가기"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
-          <div class="map-hint" id="mapHint">두 손가락으로 지도를 움직일 수 있어요</div>
+          <button type="button" class="map-shield" id="mapShield" aria-label="지도 움직이기 켜기"><span>지도를 눌러서 움직이기</span></button>
+          <button type="button" class="map-lock" id="mapLock" aria-label="지도 잠그기"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>잠그기</button>
         </div>
         <div class="nav-row">
           <a class="nav-btn" id="navNaver" href="#" target="_blank" rel="noopener">네이버지도</a>
@@ -772,26 +785,26 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
   const KAKAO_JS_KEY = '56f9715cd378fed0ea216af2379a74a8'; // developers.kakao.com → 내 애플리케이션 → 앱 키 → JavaScript 키
   const mapBox = $('#map');
   const PIN_HTML = `<span class="pulse"></span><span class="dot"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2.1 0 3.6 1.2 5.4 3.1 1.8-1.9 3.3-3.1 5.4-3.1 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z"/></svg></span><span class="tag">${VENUE.name}</span>`;
-  /* 모바일: 한 손가락은 페이지 스크롤, 두 손가락이면 지도 이동 */
-  const twoFingerPan = (enable, disable) => {
-    const hint = $('#mapHint'); let ht;
-    mapBox.addEventListener('touchstart', (e) => {
-      if (e.touches.length >= 2) { enable(); hint.classList.remove('show'); } else disable();
-    }, { passive: true });
-    mapBox.addEventListener('touchmove', (e) => {
-      if (e.touches.length === 1) { hint.classList.add('show'); clearTimeout(ht); ht = setTimeout(() => hint.classList.remove('show'), 1200); }
-    }, { passive: true });
-    mapBox.addEventListener('touchend', disable, { passive: true });
+  /* 폰: 지도를 탭해야 움직일 수 있게 (그 전엔 덮개 덕분에 페이지 스크롤이 지도에 걸리지 않음).
+     잠그기 버튼을 누르거나 지도가 화면 밖으로 나가면 다시 잠김 */
+  const tapToUnlock = (setActive) => {
+    const box = mapBox.parentElement;
+    box.classList.add('touch');
+    const lock = () => { box.classList.remove('active'); setActive(false); };
+    $('#mapShield').addEventListener('click', () => { box.classList.add('active'); setActive(true); });
+    $('#mapLock').addEventListener('click', lock);
+    new IntersectionObserver(([en]) => { if (!en.isIntersecting) lock(); }).observe(box);
+    setActive(false);
   };
   const initKakao = () => {
     const pos = new kakao.maps.LatLng(VENUE.lat, VENUE.lng);
-    const map = new kakao.maps.Map(mapBox, { center: pos, level: 3, draggable: !isMobile, scrollwheel: false });
+    const map = new kakao.maps.Map(mapBox, { center: pos, level: 3, scrollwheel: false });
     const pin = document.createElement('div'); pin.className = 'venue-pin'; pin.innerHTML = PIN_HTML;
     new kakao.maps.CustomOverlay({ map, position: pos, content: pin, xAnchor: 0, yAnchor: 0, zIndex: 3 });
     $('#zoomIn').onclick = () => map.setLevel(map.getLevel() - 1, { animate: true });
     $('#zoomOut').onclick = () => map.setLevel(map.getLevel() + 1, { animate: true });
     $('#mapReset').onclick = () => { map.setLevel(3); map.panTo(pos); };
-    if (isMobile) twoFingerPan(() => map.setDraggable(true), () => map.setDraggable(false));
+    if (isMobile) tapToUnlock((on) => { map.setDraggable(on); map.setZoomable(on); });
     let lastW = mapBox.clientWidth;
     addEventListener('resize', () => { if (mapBox.clientWidth === lastW) return; lastW = mapBox.clientWidth; map.relayout(); map.setCenter(pos); });
   };
@@ -813,7 +826,7 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
     const pos = [VENUE.lat, VENUE.lng];
     const map = L.map(mapBox, {
       center: pos, zoom: 16, zoomControl: false, scrollWheelZoom: false,
-      dragging: !L.Browser.mobile, tap: false, attributionControl: true,
+      tap: false, attributionControl: true,
     });
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
@@ -827,7 +840,9 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
     $('#zoomIn').onclick = () => map.zoomIn();
     $('#zoomOut').onclick = () => map.zoomOut();
     $('#mapReset').onclick = () => map.flyTo(pos, 16, { duration: .6 });
-    if (L.Browser.mobile) twoFingerPan(() => map.dragging.enable(), () => map.dragging.disable());
+    if (isMobile) tapToUnlock((on) => {
+      ['dragging', 'touchZoom', 'doubleClickZoom'].forEach(h => on ? map[h].enable() : map[h].disable());
+    });
     /* PC: 지도 위에서 휠을 굴리면 Ctrl과 함께일 때만 확대/축소 */
     mapBox.addEventListener('wheel', (e) => {
       if (!e.ctrlKey) return;
