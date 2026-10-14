@@ -53,7 +53,8 @@ body {
   -webkit-font-smoothing: antialiased; overflow-x: hidden;
 }
 img { display: block; max-width: 100%; }
-button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button, a { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 a { color: inherit; }
 
 /* ───────── 레이아웃 ─────────
@@ -102,7 +103,7 @@ a { color: inherit; }
 .hero-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
 .hero-names {
   display: flex; align-items: center; justify-content: center; gap: 14px;
-  margin-top: clamp(26px, 6vw, 36px); font-family: var(--serif); font-size: clamp(22px, 6vw, 28px); letter-spacing: .18em;
+  margin: clamp(26px, 6vw, 36px) 0 0; font-family: var(--serif); font-size: clamp(22px, 6vw, 28px); font-weight: 400; letter-spacing: .18em;
 }
 .hero-names .amp { font-family: var(--latin); font-style: italic; font-size: .8em; color: var(--accent); letter-spacing: 0; }
 .hero-info { margin-top: 12px; font-size: 14px; color: var(--ink-2); line-height: 1.9; }
@@ -188,7 +189,7 @@ section.tint { background: var(--bg); }
 
 .countdown { display: grid; grid-template-columns: repeat(4, minmax(0, 76px)); justify-content: center; gap: clamp(8px, 2.5vw, 12px); margin-top: 28px; }
 .countdown .box { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 12px 0 10px; }
-.countdown .num { font-variant-numeric: tabular-nums; font-family: var(--serif); font-size: clamp(22px, 6vw, 26px); font-weight: 400; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.countdown .num { font-family: var(--serif); font-size: clamp(22px, 6vw, 26px); font-weight: 400; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .countdown .lbl { font-family: var(--latin); font-size: 10.5px; letter-spacing: .2em; color: var(--ink-3); margin-top: 2px; }
 .dday-msg { margin-top: 22px; font-size: 14.5px; color: var(--ink-2); font-family: var(--serif); }
 .dday-msg b { color: var(--bride); font-weight: 700; }
@@ -283,8 +284,7 @@ html.lb-lock, html.lb-lock body { overflow: hidden; }
 .venue-name { font-family: var(--serif); font-size: clamp(18px, 5vw, 20px); }
 .venue-addr { font-size: 14px; color: var(--ink-2); margin-top: 6px; }
 .venue-addr button { margin-left: 6px; border: 0; background: none; color: var(--accent); font-size: 12px; text-decoration: underline; text-underline-offset: 3px; padding: 6px 2px; }
-.map-box { margin: 26px 0 14px; aspect-ratio: 4 / 3; max-height: 360px; width: 100%; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); background: var(--accent-soft); position: relative; }
-.map-box { border-radius: 14px; box-shadow: 0 10px 30px rgba(80,60,40,.08); isolation: isolate; }
+.map-box { margin: 26px 0 14px; aspect-ratio: 4 / 3; max-height: 360px; width: 100%; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: var(--accent-soft); position: relative; box-shadow: 0 10px 30px rgba(80,60,40,.08); isolation: isolate; }
 .map-box::before { content: var(--map-msg, '지도를 불러오는 중…'); position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; color: var(--ink-3); }
 #map { position: absolute; inset: 0; background: #f2efe9; font-family: var(--sans); }
 /* 타일만 따뜻한 흑백 톤으로 (마커는 컬러 그대로) */
@@ -344,14 +344,13 @@ html.lb-lock, html.lb-lock body { overflow: hidden; }
 .nav-btn:hover { background: var(--accent-soft); color: var(--ink); }
 .nav-btn:active { background: #e8ddcf; }
 
-/* 엔딩 */
 /* ───────── 피날레: 스크롤하면 점점 어두워지며 마무리 사진 ─────────
-   JS가 --p(0→1 진행도), --ph(사진), --gl(빛) 값을 넣어줌 */
+   JS가 --p(0→1 진행도), --ph(사진), --gl(반짝이 세기) 값을 넣어줌 */
 .finale { position: relative; padding: 0; color: #f6efe6; background: #0d0a08; --p: 0; --ph: 0; --gl: 0; }
 /* 아이보리 → 어둠: 완만한 곡선으로 길게, 노이즈를 살짝 얹어 줄무늬(밴딩) 방지 */
 .finale-fade { position: relative; height: clamp(380px, 85vh, 820px); background: linear-gradient(180deg, #f7f4ef 0%, #f6f3ee 6.2%, #f3f0eb 12.5%, #ede9e3 18.8%, #e1dcd6 25%, #d1cac3 31.2%, #bcb4ac 37.5%, #a39a92 43.8%, #887f78 50%, #6d645d 56.2%, #524a45 62.5%, #3b3430 68.8%, #27221f 75%, #191512 81.2%, #110e0c 87.5%, #0e0b09 93.8%, #0d0a08 100%); }
 .finale-fade::after { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E"); opacity: .06; mix-blend-mode: overlay; pointer-events: none; }
-/* 빛이 위쪽 어둠까지 번지도록 세로는 열고 가로만 자름 */
+/* 사진이 커졌다 줄어드는 동안 가로로만 자름 (세로로 자르면 경계선이 생김) */
 .finale-stage { position: relative; overflow-x: clip; overflow-y: visible; padding-bottom: calc(clamp(56px, 14vw, 90px) + var(--safe-b)); }
 .finale-photo {
   position: relative; width: 100%; aspect-ratio: 2 / 3; max-height: 92vh; margin: 0 auto;
@@ -390,15 +389,8 @@ html.lb-lock, html.lb-lock body { overflow: hidden; }
 .bgm.on .bars span { animation: eq 1s ease-in-out infinite; }
 .bgm.on .bars span:nth-child(2) { animation-delay: .2s; } .bgm.on .bars span:nth-child(3) { animation-delay: .4s; } .bgm.on .bars span:nth-child(4) { animation-delay: .1s; }
 @keyframes eq { 0%,100% { height: 4px } 50% { height: 14px } }
-/* 안내 말풍선은 버튼 아래쪽에 붙여 히어로 날짜를 가리지 않게 */
-.bgm-tip {
-  position: fixed; z-index: 50; top: calc(66px + env(safe-area-inset-top, 0px)); right: 14px;
-  font-size: 12px; background: rgba(47,42,38,.86); color: #fff; padding: 6px 12px; border-radius: 999px;
-  transition: opacity .5s; pointer-events: none;
-}
-.bgm-tip.hide { opacity: 0; }
 /* PC에선 음악 버튼을 본문 컬럼 안쪽 위에 */
-@media (min-width: 1024px) { .bgm { right: 24px; top: 24px; } .bgm-tip { right: 24px; top: 76px; } }
+@media (min-width: 1024px) { .bgm { right: 24px; top: 24px; } }
 
 .toast {
   position: fixed; left: 50%; bottom: calc(32px + var(--safe-b)); transform: translate(-50%, 20px); z-index: 200;
@@ -409,7 +401,7 @@ html.lb-lock, html.lb-lock body { overflow: hidden; }
 
 /* ───────── 오프닝 커튼 ───────── */
 html.locked, html.locked body { overflow: hidden; }
-.intro { position: fixed; inset: 0; z-index: 39; cursor: pointer; }
+.intro { position: fixed; inset: 0; z-index: 39; cursor: pointer; touch-action: none; overscroll-behavior: contain; }
 .intro-half { position: absolute; top: 0; bottom: 0; width: 50%; overflow: hidden; transition: transform 1.4s cubic-bezier(.7,0,.2,1); }
 .intro-half.l { left: 0; } .intro-half.r { right: 0; }
 .intro-half i {
@@ -465,9 +457,6 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
 /* 꽃잎 */
 .petals { position: fixed; inset: 0; pointer-events: none; z-index: 40; }
 
-/* 아주 작은 폰(≤340px) */
-@media (max-width: 340px) {
-}
 /* 가로로 눕힌 폰: 히어로 사진이 화면을 넘지 않게 */
 @media (orientation: landscape) and (max-height: 500px) {
   .hero-photo { max-width: 300px; }
@@ -526,7 +515,6 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
 <button class="bgm" id="bgmBtn" aria-label="배경음악 켜기" aria-pressed="false">
   <span class="bars"><span></span><span></span><span></span><span></span></span>
 </button>
-<div class="bgm-tip" id="bgmTip">화면을 누르면 음악이 재생돼요</div>
 <audio id="bgm" src="bgm2.mp3" loop preload="auto"></audio>
 
 <div class="layout">
@@ -549,7 +537,7 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
           <img src="img/8.webp" alt="김현우와 김은지의 웨딩 사진" fetchpriority="high" />
         </picture>
       </div>
-      <div class="hero-names"><span>김현우</span><span class="amp">&amp;</span><span>김은지</span></div>
+      <h1 class="hero-names"><span>김현우</span><span class="amp">&amp;</span><span>김은지</span></h1>
       <div class="hero-info">2026년 10월 24일 토요일 오후 2시 50분<br />티웨딩 천안 그레이스홀</div>
     </header>
 
@@ -728,7 +716,9 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
   ['SUN','MON','TUE','WED','THU','FRI','SAT'].forEach((d, i) => cal.insertAdjacentHTML('beforeend', `<div class="dow ${i===0?'sun':i===6?'sat':''}">${d}</div>`));
   const y = 2026, m = 9, first = new Date(y, m, 1).getDay(), last = new Date(y, m + 1, 0).getDate();
   const HOLIDAYS = { 3: '개천절', 9: '한글날' };
-  const now = new Date(), isThisMonth = now.getFullYear() === y && now.getMonth() === m;
+  /* 보는 사람이 어느 나라에 있든 한국 날짜 기준 */
+  const kstToday = () => { const k = new Date(Date.now() + 9 * 3600e3); return { y: k.getUTCFullYear(), m: k.getUTCMonth(), d: k.getUTCDate() }; };
+  const now = kstToday(), isThisMonth = now.y === y && now.m === m;
   for (let i = 0; i < first; i++) cal.insertAdjacentHTML('beforeend', '<div></div>');
   for (let d = 1; d <= last; d++) {
     const dow = (first + d - 1) % 7;
@@ -736,8 +726,8 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
       dow === 0 ? 'sun' : dow === 6 ? 'sat' : '',
       HOLIDAYS[d] ? 'hol' : '',
       d === 24 ? 'day-on' : '',
-      isThisMonth && d === now.getDate() && d !== 24 ? 'today' : '',
-      isThisMonth && d < now.getDate() ? 'past' : ''].join(' ');
+      isThisMonth && d === now.d && d !== 24 ? 'today' : '',
+      isThisMonth && d < now.d ? 'past' : ''].join(' ');
     const label = HOLIDAYS[d] ? ` title="${HOLIDAYS[d]}"` : d === 24 ? ' aria-label="예식일 10월 24일"' : '';
     cal.insertAdjacentHTML('beforeend', `<div class="${cls}"${label}><span>${d}</span></div>`);
   }
@@ -758,7 +748,7 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
     nums.h.textContent = p(Math.floor(s / 3600) % 24);
     nums.m.textContent = p(Math.floor(s / 60) % 60);
     nums.s.textContent = p(s % 60);
-    const dday = Math.ceil((new Date(2026, 9, 24) - new Date(new Date().toDateString())) / 86400000);
+    const t = kstToday(), dday = Math.round((Date.UTC(2026, 9, 24) - Date.UTC(t.y, t.m, t.d)) / 86400000);
     msg.innerHTML = dday === 0 ? '오늘, 현우 ♥ 은지가 <b>결혼합니다</b>' : `현우 ♥ 은지의 결혼식이 <b>${dday}일</b> 남았습니다`;
   };
   tick(); setInterval(tick, 1000);
@@ -802,7 +792,8 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
     $('#zoomOut').onclick = () => map.setLevel(map.getLevel() + 1, { animate: true });
     $('#mapReset').onclick = () => { map.setLevel(3); map.panTo(pos); };
     if (isMobile) twoFingerPan(() => map.setDraggable(true), () => map.setDraggable(false));
-    addEventListener('resize', () => { map.relayout(); map.setCenter(pos); });
+    let lastW = mapBox.clientWidth;
+    addEventListener('resize', () => { if (mapBox.clientWidth === lastW) return; lastW = mapBox.clientWidth; map.relayout(); map.setCenter(pos); });
   };
   const loadKakao = () => {
     const js = document.createElement('script');
@@ -883,7 +874,7 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
     thumbs.insertAdjacentHTML('beforeend', `<button type="button" data-i="${i}" aria-label="사진 ${i + 1}"><img src="img/thumb/${p}.webp" alt="" loading="lazy" /></button>`);
   });
   const slides = [...track.children], tbtns = [...thumbs.children];
-  let cur = 0, lastFocus = null;
+  let cur = 0, lastFocus = null, closeT = 0;
   const load = (i) => {
     const im = slides[i].querySelector('img');
     if (!im.src) { im.onload = () => im.classList.add('loaded'); im.src = im.dataset.src; }
@@ -902,6 +893,7 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
     if (!anim) requestAnimationFrame(() => lb.classList.remove('dragging'));
   };
   const openLb = (i) => {
+    clearTimeout(closeT);
     lastFocus = document.activeElement;
     document.documentElement.classList.add('lb-lock');
     lb.classList.remove('ui-off'); lb.style.setProperty('--pull', 0);
@@ -911,7 +903,7 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
   };
   const closeLb = () => {
     lb.classList.remove('show');
-    setTimeout(() => { lb.classList.remove('open'); lb.style.setProperty('--pull', 0); document.documentElement.classList.remove('lb-lock'); lastFocus?.focus({ preventScroll: true }); }, 320);
+    closeT = setTimeout(() => { lb.classList.remove('open'); lb.style.setProperty('--pull', 0); document.documentElement.classList.remove('lb-lock'); lastFocus?.focus({ preventScroll: true }); }, 320);
   };
   gal.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) openLb(+b.dataset.i); });
   thumbs.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) go(+b.dataset.i); });
@@ -921,6 +913,11 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
     if (e.key === 'Escape') closeLb();
     if (e.key === 'ArrowLeft') go(cur - 1);
     if (e.key === 'ArrowRight') go(cur + 1);
+    if (e.key === 'Tab') { /* 포커스를 라이트박스 안에서만 돌림 */
+      const f = [...lb.querySelectorAll('button')].filter(b => b.offsetParent);
+      const i = f.indexOf(document.activeElement);
+      e.preventDefault(); f[(i + (e.shiftKey ? -1 : 1) + f.length) % f.length]?.focus();
+    }
   });
   /* 터치: 방향을 먼저 정한 뒤 좌우면 넘기기, 아래면 닫기 */
   let sx = 0, sy = 0, dx = 0, dy = 0, axis = null, moved = false;
@@ -956,16 +953,15 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
   });
 
   /* 배경음악: 브라우저 정책상 자동재생 불가 → '청첩장 열기'를 누를 때 재생 */
-  const audio = $('#bgm'), bgmBtn = $('#bgmBtn'), tip = $('#bgmTip');
+  const audio = $('#bgm'), bgmBtn = $('#bgmBtn');
   audio.volume = 0.5;
   const setUI = (on) => { bgmBtn.classList.toggle('on', on); bgmBtn.setAttribute('aria-pressed', on); bgmBtn.setAttribute('aria-label', on ? '배경음악 끄기' : '배경음악 켜기'); };
-  const play = () => audio.play().then(() => { setUI(true); tip.classList.add('hide'); }).catch(() => {});
+  const play = () => audio.play().then(() => setUI(true)).catch(() => {});
   let userMuted = false;
   bgmBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     if (audio.paused) { userMuted = false; play(); } else { userMuted = true; audio.pause(); setUI(false); }
   });
-  setTimeout(() => tip.classList.add('hide'), 5000);
   /* 화면이 꺼지거나 다른 앱으로 가도 계속 재생. 잠금화면 컨트롤에서 멈추면 버튼도 맞춰 바뀜 */
   audio.addEventListener('play', () => setUI(true));
   audio.addEventListener('pause', () => setUI(false));
@@ -990,7 +986,6 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
   }
   else {
     document.documentElement.classList.add('locked');
-    tip.classList.add('hide');
     const openIntro = () => {
       if (intro.classList.contains('open')) return;
       intro.classList.add('open');
@@ -1084,7 +1079,7 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
     const was = sparkOn; sparkOn = en.isIntersecting;
     if (sparkOn && !was) { if (!sw) sizeSpark(); requestAnimationFrame(sparkLoop); }
   }, { rootMargin: '200px 0px' }).observe(finale.querySelector('.finale-stage'));
-  addEventListener('resize', () => { if (sw) sizeSpark(); });
+  addEventListener('resize', () => { if (sw && (sc.clientWidth !== sw || Math.abs(sc.clientHeight - sh) > 40)) sizeSpark(); });
   if (reduce) addEventListener('scroll', () => sparkOn && drawSpark(0), { passive: true });
 
   /* 스크롤 등장 */
