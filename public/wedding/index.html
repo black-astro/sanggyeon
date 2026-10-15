@@ -303,11 +303,11 @@ html.lb-lock, html.lb-lock body { overflow: hidden; }
 .venue-pin .dot {
   position: absolute; left: 50%; bottom: 0; width: 34px; height: 34px; margin-left: -17px;
   display: grid; place-items: center; color: #fff;
-  background: var(--accent); border: 3px solid #fff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
-  box-shadow: 0 6px 14px rgba(138,111,87,.45);
+  background: #3a6ea5; border: 3px solid #fff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
+  box-shadow: 0 6px 14px rgba(58,110,165,.45);
 }
 .venue-pin .dot svg { transform: rotate(45deg); }
-.venue-pin .pulse { position: absolute; left: 50%; bottom: -8px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: rgba(138,111,87,.35); animation: pulse 2s ease-out infinite; }
+.venue-pin .pulse { position: absolute; left: 50%; bottom: -8px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: rgba(58,110,165,.35); animation: pulse 2s ease-out infinite; }
 @keyframes pulse { 0% { transform: scale(.6); opacity: 1 } 100% { transform: scale(3); opacity: 0 } }
 .map-zoom { position: absolute; top: 12px; right: 12px; z-index: 600; display: flex; flex-direction: column; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,.1); }
 .map-zoom button, .map-reset {
@@ -356,11 +356,47 @@ html.lb-lock, html.lb-lock body { overflow: hidden; }
 .nav-btn:hover { background: var(--accent-soft); color: var(--ink); }
 .nav-btn:active { background: #e8ddcf; }
 
+/* 마음 전하실 곳: 신랑 측 / 신부 측 접었다 펴는 계좌 목록 */
+.gift-desc { font-family: var(--serif); font-size: clamp(14px, 3.8vw, 15.5px); line-height: 2.1; color: var(--ink-2); margin: 0 0 30px; }
+.acc-list { display: grid; gap: 12px; max-width: 420px; margin: 0 auto; text-align: left; }
+.acc { border: 1px solid var(--line); border-radius: 14px; background: var(--paper); overflow: hidden; box-shadow: 0 6px 20px rgba(80,60,40,.05); }
+.acc-head {
+  width: 100%; min-height: 54px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 0 18px; border: 0; background: none; font-family: var(--serif); font-size: 15px; letter-spacing: .04em; color: var(--ink);
+}
+.acc-head .side-name { display: inline-flex; align-items: center; gap: 9px; }
+.acc-head .side-name::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--c); }
+.acc.groom { --c: var(--groom); } .acc.bride { --c: var(--bride); }
+.acc-head svg { color: var(--ink-3); transition: transform .35s ease; flex: none; }
+.acc.open .acc-head svg { transform: rotate(180deg); }
+.acc-head:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 14px; }
+/* 높이를 0fr → 1fr로 바꿔 내용 길이에 맞게 부드럽게 열림 */
+.acc-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .4s cubic-bezier(.2,.8,.2,1); }
+.acc.open .acc-body { grid-template-rows: 1fr; }
+.acc-inner { min-height: 0; overflow: hidden; }
+.acc-row { margin: 0 14px; padding: 16px 4px; border-top: 1px solid var(--line); }
+.acc-row:last-child { padding-bottom: 18px; }
+.acc-who { font-size: 13px; color: var(--ink-2); }
+.acc-who .rel { color: var(--c); margin-right: 8px; letter-spacing: .08em; }
+.acc-num { margin-top: 3px; font-size: 15px; font-weight: 400; color: var(--ink); font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.acc-num .bank { color: var(--ink-2); margin-right: 6px; }
+.acc-btns { display: flex; gap: 8px; margin-top: 12px; }
+.acc-btns > * {
+  flex: 1; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border-radius: 10px; font-size: 13px; text-decoration: none; transition: background .2s, transform .15s;
+}
+.acc-btns > *:active { transform: scale(.97); }
+.acc-copy { border: 1px solid var(--line); background: var(--bg); color: var(--ink-2); }
+.acc-copy:hover { background: var(--accent-soft); color: var(--ink); }
+.acc-pay { border: 0; background: #fee500; color: #191600; font-weight: 400; }
+.acc-pay:hover { background: #f5dc00; }
+.acc-pay b { font-family: var(--latin); font-style: italic; font-weight: 500; font-size: 14px; }
+
 /* ───────── 피날레: 스크롤하면 점점 어두워지며 마무리 사진 ─────────
    JS가 --p(0→1 진행도), --ph(사진), --gl(반짝이 세기) 값을 넣어줌 */
 .finale { position: relative; padding: 0; color: #f6efe6; background: #0d0a08; --p: 0; --ph: 0; --gl: 0; }
-/* 아이보리 → 어둠: 완만한 곡선으로 길게, 노이즈를 살짝 얹어 줄무늬(밴딩) 방지 */
-.finale-fade { position: relative; height: clamp(380px, 85vh, 820px); background: linear-gradient(180deg, #f7f4ef 0%, #f6f3ee 6.2%, #f3f0eb 12.5%, #ede9e3 18.8%, #e1dcd6 25%, #d1cac3 31.2%, #bcb4ac 37.5%, #a39a92 43.8%, #887f78 50%, #6d645d 56.2%, #524a45 62.5%, #3b3430 68.8%, #27221f 75%, #191512 81.2%, #110e0c 87.5%, #0e0b09 93.8%, #0d0a08 100%); }
+/* 종이색 → 어둠: 완만한 곡선으로 길게, 노이즈를 살짝 얹어 줄무늬(밴딩) 방지 */
+.finale-fade { position: relative; height: clamp(380px, 85vh, 820px); background: linear-gradient(180deg, #fffdf9 0%, #f6f3ee 6.2%, #f3f0eb 12.5%, #ede9e3 18.8%, #e1dcd6 25%, #d1cac3 31.2%, #bcb4ac 37.5%, #a39a92 43.8%, #887f78 50%, #6d645d 56.2%, #524a45 62.5%, #3b3430 68.8%, #27221f 75%, #191512 81.2%, #110e0c 87.5%, #0e0b09 93.8%, #0d0a08 100%); }
 .finale-fade::after { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E"); opacity: .06; mix-blend-mode: overlay; pointer-events: none; }
 /* 사진이 커졌다 줄어드는 동안 가로로만 자름 (세로로 자르면 경계선이 생김) */
 .finale-stage { position: relative; overflow-x: clip; overflow-y: visible; padding-bottom: calc(clamp(56px, 14vw, 90px) + var(--safe-b)); }
@@ -654,6 +690,20 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
           <a class="nav-btn" id="navKakao" href="#" target="_blank" rel="noopener">카카오맵</a>
           <a class="nav-btn" id="navTmap" href="#" target="_blank" rel="noopener">티맵</a>
         </div>
+      </div>
+    </section>
+
+    <!-- 마음 전하실 곳 -->
+    <section class="gift">
+      <div class="reveal">
+        <div class="eyebrow">With Heart</div>
+        <h2 class="title">마음 전하실 곳</h2>
+        <p class="gift-desc">
+          전해주시는 따뜻한 축하의 마음을<br />
+          오래도록 간직하며<br />
+          행복한 모습으로 보답하며 살겠습니다.
+        </p>
+        <div class="acc-list" id="accList"></div>
         <button type="button" class="scroll-cue" id="scrollCue" aria-label="마지막 사진까지 내려가기">
           <span class="cue-line"><i></i></span>
           <span class="cue-txt">scroll</span>
@@ -700,6 +750,17 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
   const VENUE = { name: '티웨딩 천안', addr: '충청남도 천안시 동남구 목천읍 응원3길 27', lat: 36.7697561, lng: 127.1879381 };
   const PHOTOS = ['1','3','4','5','6','7','8','9','10','14','15','16','17','18','19','2','groom','bride','ending'];
   const FIRST_SHOW = 9;
+  /* 마음 전하실 곳: pay는 카카오페이 송금 링크 (없으면 버튼 안 나옴) */
+  const ACCOUNTS = [
+    { side: 'groom', title: '신랑 측', list: [
+      { rel: '신랑', name: '김현우', bank: '국민은행', num: '47360204343608', pay: 'https://qr.kakaopay.com/FFZKWkr2r' },
+    ] },
+    { side: 'bride', title: '신부 측', list: [
+      { rel: '신부', name: '김은지', bank: 'NH농협', num: '3020505794501', pay: 'https://qr.kakaopay.com/Ej7oVGkiW' },
+      { rel: '아버지', name: '김용철', bank: 'NH농협', num: '48381256013121' },
+      { rel: '어머니', name: '원혜숙', bank: 'NH농협', num: '45702363288' },
+    ] },
+  ];
 
   const $ = (s, r = document) => r.querySelector(s);
 
@@ -711,17 +772,45 @@ html.opened .hero-photo img, html.opened .side img { animation: kenburns 9s cubi
   };
 
   /* 복사 (http/file 환경 대비 fallback 포함) */
-  const copy = async (text) => {
+  const copy = async (text, msg = '복사되었습니다') => {
     try { await navigator.clipboard.writeText(text); }
     catch {
       const ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', '');
       ta.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(ta); ta.select();
       document.execCommand('copy'); ta.remove();
     }
-    toast('복사되었습니다');
+    toast(msg);
   };
   document.addEventListener('click', (e) => {
-    const b = e.target.closest('[data-copy]'); if (b) copy(b.dataset.copy);
+    const b = e.target.closest('[data-copy]'); if (b) copy(b.dataset.copy, b.dataset.toast);
+  });
+
+  /* 마음 전하실 곳: 신랑 측 / 신부 측 아코디언 */
+  const CHEVRON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 9 6 6 6-6"/></svg>';
+  const accList = $('#accList');
+  ACCOUNTS.forEach(({ side, title, list }) => {
+    const rows = list.map(a => `
+      <div class="acc-row">
+        <div class="acc-who"><span class="rel">${a.rel}</span>${a.name}</div>
+        <div class="acc-num"><span class="bank">${a.bank}</span>${a.num}</div>
+        <div class="acc-btns">
+          <button type="button" class="acc-copy" data-copy="${a.bank} ${a.num}" data-toast="${a.name}님 계좌번호가 복사되었습니다">계좌번호 복사</button>
+          ${a.pay ? `<a class="acc-pay" href="${a.pay}" target="_blank" rel="noopener"><b>pay</b>카카오페이</a>` : ''}
+        </div>
+      </div>`).join('');
+    accList.insertAdjacentHTML('beforeend', `
+      <div class="acc ${side}">
+        <button type="button" class="acc-head" aria-expanded="false" aria-controls="acc-${side}">
+          <span class="side-name">${title} 계좌번호</span>${CHEVRON}
+        </button>
+        <div class="acc-body" id="acc-${side}" role="region" inert><div class="acc-inner">${rows}</div></div>
+      </div>`);
+  });
+  accList.addEventListener('click', (e) => {
+    const h = e.target.closest('.acc-head'); if (!h) return;
+    const acc = h.parentElement, open = acc.classList.toggle('open');
+    h.setAttribute('aria-expanded', open);
+    acc.querySelector('.acc-body').inert = !open;
   });
 
   /* 캘린더 */
